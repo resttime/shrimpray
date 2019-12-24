@@ -1,0 +1,2 @@
+* Raytracing
+Learning how to write a raytracer in Rust
