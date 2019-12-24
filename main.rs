@@ -17,6 +17,10 @@ impl Index<u32> for Vec3 {
         }
     }
 }
+
+struct Ray {
+    a: Vec3,
+    b: Vec3,
 }
 
 fn main() {
