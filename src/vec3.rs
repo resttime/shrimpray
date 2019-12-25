@@ -1,6 +1,6 @@
 use std::ops::{Index, Add, Mul, Div, Sub};
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct Vec3 {
     pub e0: f32,
     pub e1: f32,

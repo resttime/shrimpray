@@ -1,7 +1,13 @@
+use ::rand::prelude::*;
+use ::rand::distributions::Standard;
+
 mod vec3;
 use vec3::{Vec3, dot};
 
-#[derive(Copy, Clone)]
+mod camera;
+use camera::Camera;
+
+#[derive(Copy, Clone, Default)]
 struct Ray {
     a: Vec3,
     b: Vec3,
@@ -47,6 +53,7 @@ trait Hittable {
 }
 
 impl Hittable for Sphere {
+    // Solves a quadratic equation
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let a = dot(r.b, r.b);
         let b = 2.0*dot(r.b, r.a-self.center);
@@ -93,6 +100,10 @@ fn color(r: Ray) -> Vec3 {
     let unit_direction = r.direction().unit();
     let t: f32 = 0.5*(unit_direction.y() + 1.0);
     return (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
+}
+
+fn rand_float() -> f32 {
+    StdRng::from_entropy().sample(Standard)
 }
 
 fn main() {
