@@ -44,10 +44,10 @@ fn main() {
     println!("{} {}", nx, ny);
     println!("255");
 
-    let ll_corner = Vec3 {e0: -2.0, e1: -1.0, e2: -1.0};
-    let horizontal = Vec3 {e0: 4.0, e1: 0.0, e2: 0.0};
-    let vertical = Vec3 {e0: 0.0, e1: 2.0, e2: 0.0};
-    let origin = Vec3 {e0: 0.0, e1: 0.0, e2: 0.0};
+    let ll_corner = Vec3::new(-2.0, -1.0, -1.0);
+    let horizontal = Vec3::new(4.0, 0.0, 0.0);
+    let vertical = Vec3::new(0.0, 2.0, 0.0);
+    let origin = Vec3::new(0.0, 0.0, 0.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
