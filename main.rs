@@ -39,10 +39,13 @@ fn hit_sphere(r: Ray) -> f32 {
 
 fn color(r: Ray) -> Vec3 {
     let unit_direction = r.direction().unit();
-    let t: f32 = 0.5*(unit_direction.y() + 1.0);
-    if hit_sphere(r) {
-        return Vec3::new(1.0, 0.0, 0.0);
+    let t: f32 = hit_sphere(r);
+    if t > 0.0 {
+        let normal = (r.point_at_parameter(t) - Vec3::new(0.0, 0.0, -1.0)).unit();
+        return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
     }
+
+    let t: f32 = 0.5*(unit_direction.y() + 1.0);
     (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
 }
 
