@@ -105,6 +105,12 @@ impl Ray {
     }
 }
 
+fn color(r: Ray) -> Vec3 {
+    let unit_direction = r.direction().unit();
+    let t: f32 = 0.5*(unit_direction.y() + 1.0);
+    (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
+}
+
 fn main() {
     let (nx, ny): (u32, u32) = (200, 100);
     println!("P3");
