@@ -114,9 +114,25 @@ impl Ray {
     }
 }
 
+fn hit_sphere(r: Ray) -> bool {
+    let center = Vec3::new(0.0, 0.0, -1.0);
+    let radius: f32 = 0.5;
+
+    let a = dot(r.b, r.b);
+    let b = 2.0*dot(r.b, r.a-center);
+    let c = dot(r.a-center, r.a-center) - radius*radius;
+
+    let discriminant = b*b-4.0*a*c;
+
+    discriminant >= 0.0
+}
+
 fn color(r: Ray) -> Vec3 {
     let unit_direction = r.direction().unit();
     let t: f32 = 0.5*(unit_direction.y() + 1.0);
+    if hit_sphere(r) {
+        return Vec3::new(1.0, 0.0, 0.0);
+    }
     (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
 }
 
