@@ -19,7 +19,7 @@ impl Ray {
     }
 }
 
-fn hit_sphere(r: Ray) -> bool {
+fn hit_sphere(r: Ray) -> f32 {
     let center = Vec3::new(0.0, 0.0, -1.0);
     let radius: f32 = 0.5;
 
@@ -29,7 +29,12 @@ fn hit_sphere(r: Ray) -> bool {
 
     let discriminant = b*b-4.0*a*c;
 
-    discriminant >= 0.0
+    if discriminant < 0.0 {
+        return -1.0;
+    }
+
+    // Returns the smallest parameter for the ray hits the sphere
+    return (-b - discriminant.sqrt()) / (2.0*a);
 }
 
 fn color(r: Ray) -> Vec3 {
