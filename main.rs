@@ -76,9 +76,7 @@ impl Div<f32> for Vec3 {
 
 impl Vec3 {
     fn mag(&self) -> f32 {
-        let d = dot(self, self);
-        let sum = d.e0 + d.e1 + d.e2;
-        sum.sqrt()
+        dot(*self, *self).sqrt()
     }
     fn unit(&self) -> Vec3 {
         *self / self.mag()
@@ -97,8 +95,8 @@ impl Vec3 {
     }
 }
 
-fn dot(u: &Vec3, v: &Vec3) -> Vec3 {
-    Vec3::new(u.e0*v.e0, u.e1*v.e1, u.e2*v.e2)
+fn dot(u: Vec3, v: Vec3) -> f32 {
+    u.e0*v.e0 + u.e1*v.e1 + u.e2*v.e2
 }
 
 #[derive(Copy, Clone)]
