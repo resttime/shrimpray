@@ -93,6 +93,15 @@ struct Ray {
     b: Vec3,
 }
 
+impl Ray {
+    fn direction(&self) -> Vec3 {
+        self.a + self.b
+    }
+    fn new(a: Vec3, b: Vec3) -> Ray {
+        Ray {a: a, b: b}
+    }
+}
+
 fn main() {
     let (nx, ny): (u32, u32) = (200, 100);
     println!("P3");
