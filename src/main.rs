@@ -1,8 +1,8 @@
-use ::rand::prelude::*;
-use ::rand::distributions::Standard;
+use rand::distributions::Standard;
+use rand::prelude::*;
 
 mod vec3;
-use vec3::{Vec3, dot};
+use vec3::{dot, Vec3};
 
 mod camera;
 use camera::Camera;
@@ -15,13 +15,13 @@ struct Ray {
 
 impl Ray {
     fn direction(&self) -> Vec3 {
-        self.b-self.a
+        self.b - self.a
     }
     fn point_at_parameter(&self, t: f32) -> Vec3 {
-        self.a + t*self.b
+        self.a + t * self.b
     }
     fn new(a: Vec3, b: Vec3) -> Ray {
-        Ray {a: a, b: b}
+        Ray { a: a, b: b }
     }
 }
 
@@ -33,7 +33,11 @@ struct HitRecord {
 
 impl HitRecord {
     fn new(t: f32, p: Vec3, normal: Vec3) -> HitRecord {
-        HitRecord{t: t, p: p, normal: normal}
+        HitRecord {
+            t: t,
+            p: p,
+            normal: normal,
+        }
     }
 }
 
@@ -44,7 +48,10 @@ struct Sphere {
 
 impl Sphere {
     fn new(center: Vec3, radius: f32) -> Sphere {
-        Sphere { center: center, radius: radius }
+        Sphere {
+            center: center,
+            radius: radius,
+        }
     }
 }
 
@@ -56,23 +63,23 @@ impl Hittable for Sphere {
     // Solves a quadratic equation
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let a = dot(r.b, r.b);
-        let b = 2.0*dot(r.b, r.a-self.center);
-        let c = dot(r.a-self.center, r.a-self.center) - self.radius*self.radius;
+        let b = 2.0 * dot(r.b, r.a - self.center);
+        let c = dot(r.a - self.center, r.a - self.center) - self.radius * self.radius;
 
-        let discriminant = b*b-4.0*a*c;
+        let discriminant = b * b - 4.0 * a * c;
         if discriminant > 0.0 {
             // Check smaller parameter
-            let t = (-b - discriminant.sqrt()) / (2.0*a);
+            let t = (-b - discriminant.sqrt()) / (2.0 * a);
             if t_min < t && t < t_max {
                 let normal = (r.point_at_parameter(t) - self.center) / self.radius;
-                return Some(HitRecord::new(t, r.point_at_parameter(t), normal))
+                return Some(HitRecord::new(t, r.point_at_parameter(t), normal));
             }
 
             // Check larger parameter
-            let t = (-b + discriminant.sqrt()) / (2.0*a);
+            let t = (-b + discriminant.sqrt()) / (2.0 * a);
             if t_min < t && t < t_max {
                 let normal = (r.point_at_parameter(t) - self.center) / self.radius;
-                return Some(HitRecord::new(t, r.point_at_parameter(t), normal))
+                return Some(HitRecord::new(t, r.point_at_parameter(t), normal));
             }
         }
         None
@@ -85,21 +92,21 @@ fn color(r: Ray) -> Vec3 {
     match s.hit(r, 0.0, 1.0) {
         Some(h) => {
             let normal = h.normal;
-            return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
+            return 0.5 * Vec3::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
         }
-        None => ()
+        None => (),
     }
     match q.hit(r, 0.0, std::f32::MAX) {
         Some(h) => {
             let normal = h.normal;
-            return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
+            return 0.5 * Vec3::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
         }
-        None => ()
+        None => (),
     }
 
     let unit_direction = r.direction().unit();
-    let t: f32 = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
+    let t: f32 = 0.5 * (unit_direction.y() + 1.0);
+    return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
 }
 
 fn rand_float() -> f32 {
@@ -121,11 +128,11 @@ fn main() {
         for i in 0..nx {
             let u: f32 = i as f32 / nx as f32;
             let v: f32 = j as f32 / ny as f32;
-            let r = Ray::new(origin, ll_corner + u*horizontal + v*vertical);
+            let r = Ray::new(origin, ll_corner + u * horizontal + v * vertical);
             let col = color(r);
-            let ir: u32 = (255.99*col[0]) as u32;
-            let ig: u32 = (255.99*col[1]) as u32;
-            let ib: u32 = (255.99*col[2]) as u32;
+            let ir: u32 = (255.99 * col[0]) as u32;
+            let ig: u32 = (255.99 * col[1]) as u32;
+            let ib: u32 = (255.99 * col[2]) as u32;
             println!("{} {} {}", ir, ig, ib)
         }
     }

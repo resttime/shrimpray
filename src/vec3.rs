@@ -1,4 +1,4 @@
-use std::ops::{Index, Add, Mul, Div, Sub};
+use std::ops::{Add, Div, Index, Mul, Sub};
 
 #[derive(Copy, Clone, Default)]
 pub struct Vec3 {
@@ -81,8 +81,12 @@ impl Vec3 {
     pub fn unit(&self) -> Vec3 {
         *self / self.mag()
     }
-    pub fn new(e0: f32, e1: f32, e2: f32) -> Vec3{
-        Vec3{e0: e0, e1: e1, e2: e2}
+    pub fn new(e0: f32, e1: f32, e2: f32) -> Vec3 {
+        Vec3 {
+            e0: e0,
+            e1: e1,
+            e2: e2,
+        }
     }
     pub fn x(&self) -> f32 {
         self.e0
@@ -96,5 +100,5 @@ impl Vec3 {
 }
 
 pub fn dot(u: Vec3, v: Vec3) -> f32 {
-    u.e0*v.e0 + u.e1*v.e1 + u.e2*v.e2
+    u.e0 * v.e0 + u.e1 * v.e1 + u.e2 * v.e2
 }
