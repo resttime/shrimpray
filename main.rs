@@ -86,6 +86,9 @@ impl Vec3 {
     }
 }
 
+fn dot(u: &Vec3, v: &Vec3) -> Vec3 {
+    Vec3::new(u.e0*v.e0, u.e1*v.e1, u.e2*v.e2)
+}
 
 #[derive(Copy, Clone)]
 struct Ray {
