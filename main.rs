@@ -1,5 +1,6 @@
-use std::ops::Index;
+use std::ops::{Index, Add, Mul, Div};
 
+#[derive(Copy, Clone)]
 struct Vec3 {
     e0: f32,
     e1: f32,
@@ -18,6 +19,8 @@ impl Index<u32> for Vec3 {
     }
 }
 
+
+#[derive(Copy, Clone)]
 struct Ray {
     a: Vec3,
     b: Vec3,
