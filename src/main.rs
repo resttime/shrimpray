@@ -85,7 +85,7 @@ fn rand_float() -> f32 {
 }
 
 fn main() {
-    let (nx, ny): (u32, u32) = (200, 100);
+    let (nx, ny, ns) = (200, 100, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -94,10 +94,15 @@ fn main() {
 
     for j in (0..ny).rev() {
         for i in 0..nx {
-            let u: f32 = i as f32 / nx as f32;
-            let v: f32 = j as f32 / ny as f32;
-            let r = cam.get_ray(u, v);
-            let col = color(r);
+            let mut col = Vec3::default();
+            for _ in 0..ns {
+                let u: f32 = (i as f32 + rand_float()) / nx as f32;
+                let v: f32 = (j as f32 + rand_float()) / ny as f32;
+                let r = cam.get_ray(u, v);
+                col += color(r);
+            }
+            col /= ns as f32;
+
             let ir: u32 = (255.99 * col[0]) as u32;
             let ig: u32 = (255.99 * col[1]) as u32;
             let ib: u32 = (255.99 * col[2]) as u32;
