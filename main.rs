@@ -19,34 +19,70 @@ impl Ray {
     }
 }
 
-fn hit_sphere(r: Ray) -> f32 {
-    let center = Vec3::new(0.0, 0.0, -1.0);
-    let radius: f32 = 0.5;
+struct HitRecord {
+    t: f32,
+    p: Vec3,
+    normal: Vec3,
+}
 
-    let a = dot(r.b, r.b);
-    let b = 2.0*dot(r.b, r.a-center);
-    let c = dot(r.a-center, r.a-center) - radius*radius;
-
-    let discriminant = b*b-4.0*a*c;
-
-    if discriminant < 0.0 {
-        return -1.0;
+impl HitRecord {
+    fn new(t: f32, p: Vec3, normal: Vec3) -> HitRecord {
+        HitRecord{t: t, p: p, normal: normal}
     }
+}
 
-    // Returns the smallest parameter for the ray hits the sphere
-    return (-b - discriminant.sqrt()) / (2.0*a);
+struct Sphere {
+    center: Vec3,
+    radius: f32,
+}
+
+impl Sphere {
+    fn new(center: Vec3, radius: f32) -> Sphere {
+        Sphere { center: center, radius: radius }
+    }
+}
+
+trait Hittable {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+}
+
+impl Hittable for Sphere {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let a = dot(r.b, r.b);
+        let b = 2.0*dot(r.b, r.a-self.center);
+        let c = dot(r.a-self.center, r.a-self.center) - self.radius*self.radius;
+
+        let discriminant = b*b-4.0*a*c;
+        if discriminant > 0.0 {
+            let t = (-b - discriminant.sqrt()) / (2.0*a);
+            let normal = (r.point_at_parameter(t) - self.center) / self.radius;
+
+            return Some(HitRecord::new(t, r.point_at_parameter(t), normal))
+        }
+        None
+    }
 }
 
 fn color(r: Ray) -> Vec3 {
     let unit_direction = r.direction().unit();
-    let t: f32 = hit_sphere(r);
-    if t > 0.0 {
-        let normal = (r.point_at_parameter(t) - Vec3::new(0.0, 0.0, -1.0)).unit();
-        return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
+    let s = Sphere::new(Vec3::new(0.0,0.0,-1.0), 0.5);
+    let q = Sphere::new(Vec3::new(1.0,0.0,-1.0), 0.5);
+    match s.hit(r, 0.0, 1.0) {
+        Some(h) => {
+            let normal = h.normal;
+            return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
+        }
+        None => ()
     }
-
+    match q.hit(r, 0.0, 1.0) {
+        Some(h) => {
+            let normal = h.normal;
+            return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
+        }
+        None => ()
+    }
     let t: f32 = 0.5*(unit_direction.y() + 1.0);
-    (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
+    return (1.0-t)*Vec3::new(1.0, 1.0, 1.0) + t*Vec3::new(0.5, 0.7, 1.0)
 }
 
 fn main() {
