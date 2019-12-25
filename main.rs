@@ -63,6 +63,29 @@ impl Div<f32> for Vec3 {
     }
 }
 
+impl Vec3 {
+    fn mag(&self) -> f32 {
+        let d = dot(self, self);
+        let sum = d.e0 + d.e1 + d.e2;
+        sum.sqrt()
+    }
+    fn unit(&self) -> Vec3 {
+        *self / self.mag()
+    }
+    fn new(e0: f32, e1: f32, e2: f32) -> Vec3{
+        Vec3{e0: e0, e1: e1, e2: e2}
+    }
+    fn x(&self) -> f32 {
+        self.e0
+    }
+    fn y(&self) -> f32 {
+        self.e1
+    }
+    fn z(&self) -> f32 {
+        self.e2
+    }
+}
+
 
 #[derive(Copy, Clone)]
 struct Ray {
