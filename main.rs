@@ -19,6 +19,50 @@ impl Index<u32> for Vec3 {
     }
 }
 
+impl Add for Vec3 {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Self {
+            e0: self.e0 + other.e0,
+            e1: self.e1 + other.e1,
+            e2: self.e2 + other.e2,
+        }
+    }
+}
+
+impl Mul<f32> for Vec3 {
+    type Output = Self;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self {
+            e0: self.e0 * rhs,
+            e1: self.e1 * rhs,
+            e2: self.e2 * rhs,
+        }
+    }
+}
+
+impl Mul<Vec3> for f32 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            e0: rhs.e0 * self,
+            e1: rhs.e1 * self,
+            e2: rhs.e2 * self,
+        }
+    }
+}
+
+impl Div<f32> for Vec3 {
+    type Output = Self;
+    fn div(self, rhs: f32) -> Self::Output {
+        Vec3 {
+            e0: self.e0 / rhs,
+            e1: self.e1 / rhs,
+            e2: self.e2 / rhs,
+        }
+    }
+}
+
 
 #[derive(Copy, Clone)]
 struct Ray {
