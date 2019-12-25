@@ -1,2 +1,10 @@
-* Raytracing
-Learning how to write a raytracer in Rust
+* shrimpray
+#+begin_quote
+One of the most complex eyes in the animal kingdom can be found in
+species of stomatopod crustaceans (mantis shrimp), some of which have
+12 different photoreceptor types, each sampling a narrow set of
+wavelengths ranging from deep ultraviolet to far red (300 to 720
+nanometers). Functionally, this chromatic complexity has presented a
+mystery. Why use 12 color channels when three or four are sufficient
+for fine color discrimination? ---Science, Vol. 343, 24 Jan 2014
+#+end_quote
