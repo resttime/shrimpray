@@ -116,11 +116,18 @@ fn main() {
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
+
+    let ll_corner = Vec3 {e0: -2.0, e1: -1.0, e2: -1.0};
+    let horizontal = Vec3 {e0: 4.0, e1: 0.0, e2: 0.0};
+    let vertical = Vec3 {e0: 0.0, e1: 2.0, e2: 0.0};
+    let origin = Vec3 {e0: 0.0, e1: 0.0, e2: 0.0};
+
     for j in (0..ny).rev() {
         for i in 0..nx {
-            let col = Vec3 {e0: i as f32 / nx as f32,
-                            e1: j as f32 / ny as f32,
-                            e2: 0.2};
+            let u: f32 = i as f32 / nx as f32;
+            let v: f32 = j as f32 / ny as f32;
+            let r = Ray::new(origin, ll_corner + u*horizontal + v*vertical);
+            let col = color(r);
             let ir: u32 = (255.99*col[0]) as u32;
             let ig: u32 = (255.99*col[1]) as u32;
             let ib: u32 = (255.99*col[2]) as u32;
