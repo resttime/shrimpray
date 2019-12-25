@@ -54,10 +54,19 @@ impl Hittable for Sphere {
 
         let discriminant = b*b-4.0*a*c;
         if discriminant > 0.0 {
+            // Check smaller parameter
             let t = (-b - discriminant.sqrt()) / (2.0*a);
-            let normal = (r.point_at_parameter(t) - self.center) / self.radius;
+            if t_min < t && t < t_max {
+                let normal = (r.point_at_parameter(t) - self.center) / self.radius;
+                return Some(HitRecord::new(t, r.point_at_parameter(t), normal))
+            }
 
-            return Some(HitRecord::new(t, r.point_at_parameter(t), normal))
+            // Check larger parameter
+            let t = (-b + discriminant.sqrt()) / (2.0*a);
+            if t_min < t && t < t_max {
+                let normal = (r.point_at_parameter(t) - self.center) / self.radius;
+                return Some(HitRecord::new(t, r.point_at_parameter(t), normal))
+            }
         }
         None
     }
