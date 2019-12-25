@@ -1,5 +1,4 @@
-use rand::distributions::Standard;
-use rand::prelude::*;
+use rand::Rng;
 
 mod vec3;
 use vec3::{dot, Ray, Vec3};
@@ -81,7 +80,8 @@ fn color(r: Ray) -> Vec3 {
 }
 
 fn rand_float() -> f32 {
-    StdRng::from_entropy().sample(Standard)
+    let mut rng = rand::thread_rng();
+    rng.gen::<f32>()
 }
 
 fn main() {
