@@ -2,28 +2,13 @@ use rand::distributions::Standard;
 use rand::prelude::*;
 
 mod vec3;
-use vec3::{dot, Vec3};
+use vec3::{dot, Ray, Vec3};
 
 mod camera;
 use camera::Camera;
 
-#[derive(Copy, Clone, Default)]
-struct Ray {
-    a: Vec3,
-    b: Vec3,
-}
-
-impl Ray {
-    fn direction(&self) -> Vec3 {
-        self.b - self.a
-    }
-    fn point_at_parameter(&self, t: f32) -> Vec3 {
-        self.a + t * self.b
-    }
-    fn new(a: Vec3, b: Vec3) -> Ray {
-        Ray { a: a, b: b }
-    }
-}
+mod obj;
+use obj::Sphere;
 
 struct HitRecord {
     t: f32,
@@ -37,20 +22,6 @@ impl HitRecord {
             t: t,
             p: p,
             normal: normal,
-        }
-    }
-}
-
-struct Sphere {
-    center: Vec3,
-    radius: f32,
-}
-
-impl Sphere {
-    fn new(center: Vec3, radius: f32) -> Sphere {
-        Sphere {
-            center: center,
-            radius: radius,
         }
     }
 }
@@ -119,16 +90,13 @@ fn main() {
     println!("{} {}", nx, ny);
     println!("255");
 
-    let ll_corner = Vec3::new(-2.0, -1.0, -1.0);
-    let horizontal = Vec3::new(4.0, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, 2.0, 0.0);
-    let origin = Vec3::new(0.0, 0.0, 0.0);
+    let cam = Camera::default();
 
     for j in (0..ny).rev() {
         for i in 0..nx {
             let u: f32 = i as f32 / nx as f32;
             let v: f32 = j as f32 / ny as f32;
-            let r = Ray::new(origin, ll_corner + u * horizontal + v * vertical);
+            let r = cam.get_ray(u, v);
             let col = color(r);
             let ir: u32 = (255.99 * col[0]) as u32;
             let ig: u32 = (255.99 * col[1]) as u32;

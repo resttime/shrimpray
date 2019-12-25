@@ -102,3 +102,21 @@ impl Vec3 {
 pub fn dot(u: Vec3, v: Vec3) -> f32 {
     u.e0 * v.e0 + u.e1 * v.e1 + u.e2 * v.e2
 }
+
+#[derive(Copy, Clone, Default)]
+pub struct Ray {
+    pub a: Vec3,
+    pub b: Vec3,
+}
+
+impl Ray {
+    pub fn direction(&self) -> Vec3 {
+        self.b - self.a
+    }
+    pub fn point_at_parameter(&self, t: f32) -> Vec3 {
+        self.a + t * self.b
+    }
+    pub fn new(a: Vec3, b: Vec3) -> Ray {
+        Ray { a: a, b: b }
+    }
+}
