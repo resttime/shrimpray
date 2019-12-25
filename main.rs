@@ -73,9 +73,8 @@ impl Hittable for Sphere {
 }
 
 fn color(r: Ray) -> Vec3 {
-    let unit_direction = r.direction().unit();
-    let s = Sphere::new(Vec3::new(0.0,0.0,-1.0), 0.5);
-    let q = Sphere::new(Vec3::new(1.0,0.0,-1.0), 0.5);
+    let s = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5);
+    let q = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0);
     match s.hit(r, 0.0, 1.0) {
         Some(h) => {
             let normal = h.normal;
@@ -83,7 +82,7 @@ fn color(r: Ray) -> Vec3 {
         }
         None => ()
     }
-    match q.hit(r, 0.0, 1.0) {
+    match q.hit(r, 0.0, std::f32::MAX) {
         Some(h) => {
             let normal = h.normal;
             return 0.5*Vec3::new(normal.x()+1.0, normal.y()+1.0, normal.z()+1.0);
