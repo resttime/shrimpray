@@ -107,7 +107,7 @@ struct Ray {
 
 impl Ray {
     fn direction(&self) -> Vec3 {
-        -1.0*self.a + self.b
+        self.b-self.a
     }
     fn new(a: Vec3, b: Vec3) -> Ray {
         Ray {a: a, b: b}
