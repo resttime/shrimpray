@@ -1,5 +1,3 @@
-use rand::Rng;
-
 mod vec3;
 use vec3::{Ray, Vec3};
 
@@ -12,6 +10,11 @@ use obj::Sphere;
 mod hit;
 use hit::Hittable;
 
+mod material;
+
+mod util;
+use util::*;
+
 fn color(r: Ray, world: &Vec<&dyn Hittable>) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let target = hit.p + hit.normal + random_in_unit_sphere();
@@ -21,21 +24,6 @@ fn color(r: Ray, world: &Vec<&dyn Hittable>) -> Vec3 {
     let unit_direction = r.direction().unit();
     let t: f32 = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
-}
-
-fn rand_float() -> f32 {
-    let mut rng = rand::thread_rng();
-    rng.gen::<f32>()
-}
-
-fn random_in_unit_sphere() -> Vec3 {
-    loop {
-        let p =
-            2.0 * Vec3::new(rand_float(), rand_float(), rand_float()) - Vec3::new(1.0, 1.0, 1.0);
-        if p.mag() < 1.0 {
-            return p;
-        }
-    }
 }
 
 fn main() {
