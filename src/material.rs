@@ -31,6 +31,12 @@ pub struct Metal {
     albedo: Vec3,
 }
 
+impl Metal {
+    pub fn new(a: Vec3) -> Self {
+        Self { albedo: a }
+    }
+}
+
 impl Material for Metal {
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
         let reflected: Vec3 = reflect(ray_in.direction().unit(), hit.normal);

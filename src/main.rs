@@ -13,7 +13,7 @@ mod hit;
 use hit::Hittable;
 
 mod material;
-use material::Lambertian;
+use material::{Lambertian, Metal};
 
 mod util;
 use util::*;
@@ -45,6 +45,8 @@ fn main() {
     let world: Vec<Box<dyn Hittable>> = vec![
         Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Rc::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))))),
         Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))))),
+        Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2))))),
+        Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.8))))),
     ];
 
     for j in (0..ny).rev() {
