@@ -56,6 +56,20 @@ impl Hittable for Sphere {
     }
 }
 
+impl Hittable for Vec<Box<dyn Hittable>> {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let mut closest_t: f32 = t_max;
+        let mut closest_hit: Option<HitRecord> = None;
+        for obj in self {
+            if let Some(hit) = obj.hit(r, t_min, closest_t) {
+                closest_t = hit.t;
+                closest_hit = Some(hit);
+            }
+        }
+        closest_hit
+    }
+}
+
 fn color(r: Ray) -> Vec3 {
     let s = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5);
     let q = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0);
