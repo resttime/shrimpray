@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 mod vec3;
 use vec3::{Ray, Vec3};
 
@@ -11,14 +13,20 @@ mod hit;
 use hit::Hittable;
 
 mod material;
+use material::Lambertian;
 
 mod util;
 use util::*;
 
-fn color(r: Ray, world: &Vec<&dyn Hittable>) -> Vec3 {
+fn color(r: Ray, world: &Vec<Box<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
-        let target = hit.p + hit.normal + random_in_unit_sphere();
-        return 0.5 * color(Ray::new(hit.p, target - hit.p), world);
+        if let Some((scattered, attenuation)) = hit.material.scatter(r, &hit) {
+            if depth < 50 {
+                return attenuation * color(scattered, world, depth + 1);
+            } else {
+                return Vec3::new(0.0, 0.0, 0.0);
+            }
+        }
     }
 
     let unit_direction = r.direction().unit();
@@ -33,9 +41,11 @@ fn main() {
     println!("255");
 
     let cam = Camera::default();
-    let s = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5);
-    let q = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0);
-    let world = vec![&s as &dyn Hittable, &q as &dyn Hittable];
+
+    let world: Vec<Box<dyn Hittable>> = vec![
+        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Rc::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3))))),
+        Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))))),
+    ];
 
     for j in (0..ny).rev() {
         for i in 0..nx {
@@ -44,7 +54,7 @@ fn main() {
                 let u: f32 = (i as f32 + rand_float()) / nx as f32;
                 let v: f32 = (j as f32 + rand_float()) / ny as f32;
                 let r = cam.get_ray(u, v);
-                col += color(r, &world);
+                col += color(r, &world, 0);
             }
             col /= ns as f32;
             col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());

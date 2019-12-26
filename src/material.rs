@@ -1,9 +1,9 @@
 use crate::hit::HitRecord;
 use crate::util::*;
-use crate::vec3::{Ray, Vec3};
+use crate::vec3::{reflect, Ray, Vec3};
 
 pub trait Material {
-    fn scatter(&self, ray_in: Ray, hit: HitRecord) -> Option<(Ray, Vec3)>;
+    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)>;
 }
 
 // Diffuse
@@ -18,10 +18,25 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _ray_in: Ray, hit: HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, _ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
         let target = hit.p + hit.normal + random_in_unit_sphere();
         let scattered = Ray::new(hit.p, target - hit.p);
+        let attenuation = self.albedo;
 
-        Some((scattered, self.albedo))
+        Some((scattered, attenuation))
+    }
+}
+
+pub struct Metal {
+    albedo: Vec3,
+}
+
+impl Material for Metal {
+    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
+        let reflected: Vec3 = reflect(ray_in.direction().unit(), hit.normal);
+        let scattered = Ray::new(hit.p, reflected);
+        let attenuation = self.albedo;
+
+        Some((scattered, attenuation))
     }
 }

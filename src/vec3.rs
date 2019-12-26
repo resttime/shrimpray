@@ -49,6 +49,17 @@ impl Sub for Vec3 {
     }
 }
 
+impl Mul<Vec3> for Vec3 {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self {
+            e0: self.e0 * rhs.e0,
+            e1: self.e1 * rhs.e1,
+            e2: self.e2 * rhs.e2,
+        }
+    }
+}
+
 impl Mul<f32> for Vec3 {
     type Output = Self;
     fn mul(self, rhs: f32) -> Self::Output {
@@ -117,6 +128,11 @@ impl Vec3 {
 
 pub fn dot(u: Vec3, v: Vec3) -> f32 {
     u.e0 * v.e0 + u.e1 * v.e1 + u.e2 * v.e2
+}
+
+// n is a unit vector that we are reflecting
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - 2.0 * dot(v, n) * n
 }
 
 #[derive(Copy, Clone, Default)]

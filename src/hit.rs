@@ -1,3 +1,6 @@
+use std::rc::Rc;
+
+use crate::material::{Material};
 use crate::obj::Sphere;
 use crate::vec3::{dot, Ray, Vec3};
 
@@ -5,14 +8,16 @@ pub struct HitRecord {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
+    pub material: Rc<dyn Material>,
 }
 
 impl HitRecord {
-    fn new(t: f32, p: Vec3, normal: Vec3) -> HitRecord {
+    fn new(t: f32, p: Vec3, normal: Vec3, material: Rc<dyn Material>) -> HitRecord {
         HitRecord {
             t: t,
             p: p,
             normal: normal,
+            material: material,
         }
     }
 }
@@ -35,7 +40,7 @@ impl Hittable for Sphere {
             if t_min < t && t < t_max {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center) / self.radius;
-                return Some(HitRecord::new(t, point, normal));
+                return Some(HitRecord::new(t, point, normal, Rc::clone(&self.material)));
             }
 
             // Check larger parameter
@@ -43,14 +48,14 @@ impl Hittable for Sphere {
             if t_min < t && t < t_max {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center) / self.radius;
-                return Some(HitRecord::new(t, point, normal));
+                return Some(HitRecord::new(t, point, normal, Rc::clone(&self.material)));
             }
         }
         None
     }
 }
 
-impl Hittable for Vec<&dyn Hittable> {
+impl Hittable for Vec<Box<dyn Hittable>> {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_t: f32 = t_max;
         let mut closest_hit: Option<HitRecord> = None;
