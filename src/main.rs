@@ -33,23 +33,25 @@ impl Hittable for Sphere {
     // Solves a quadratic equation
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let a = dot(r.b, r.b);
-        let b = 2.0 * dot(r.b, r.a - self.center);
+        let b = dot(r.b, r.a - self.center);
         let c = dot(r.a - self.center, r.a - self.center) - self.radius * self.radius;
 
-        let discriminant = b * b - 4.0 * a * c;
+        let discriminant = b * b - a * c;
         if discriminant > 0.0 {
             // Check smaller parameter
-            let t = (-b - discriminant.sqrt()) / (2.0 * a);
+            let t = (-b - discriminant.sqrt()) / a;
             if t_min < t && t < t_max {
-                let normal = (r.point_at_parameter(t) - self.center) / self.radius;
-                return Some(HitRecord::new(t, r.point_at_parameter(t), normal));
+                let point = r.point_at_parameter(t);
+                let normal = (point - self.center) / self.radius;
+                return Some(HitRecord::new(t, point, normal));
             }
 
             // Check larger parameter
-            let t = (-b + discriminant.sqrt()) / (2.0 * a);
+            let t = (-b + discriminant.sqrt()) / a;
             if t_min < t && t < t_max {
-                let normal = (r.point_at_parameter(t) - self.center) / self.radius;
-                return Some(HitRecord::new(t, r.point_at_parameter(t), normal));
+                let point = r.point_at_parameter(t);
+                let normal = (point - self.center) / self.radius;
+                return Some(HitRecord::new(t, point, normal));
             }
         }
         None
