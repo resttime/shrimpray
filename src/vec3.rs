@@ -135,6 +135,12 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
     v - 2.0 * dot(v, n) * n
 }
 
+pub fn cross(v1: Vec3, v2: Vec3) -> Vec3 {
+    Vec3::new(v1.e1 * v2.e2 - v1.e2 * v2.e1,
+              v1.e2 * v2.e0 - v1.e0 * v2.e2,
+              v1.e0 * v2.e1 - v1.e1 * v2.e0)
+}
+
 pub fn refract(v: Vec3, n: Vec3, ni_over_nt: f32) -> Option<Vec3> {
     let uv = v.unit();
     let dt = dot(uv, n);
