@@ -143,7 +143,10 @@ pub struct Ray {
 
 impl Ray {
     pub fn direction(&self) -> Vec3 {
-        self.b - self.a
+        self.b
+    }
+    pub fn origin(&self) -> Vec3 {
+        self.a
     }
     pub fn point_at_parameter(&self, t: f32) -> Vec3 {
         self.a + t * self.b
