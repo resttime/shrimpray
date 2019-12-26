@@ -42,7 +42,10 @@ fn main() {
     println!("{} {}", nx, ny);
     println!("255");
 
-    let cam = Camera::new(90.0, nx as f32 / ny as f32);
+    let cam = Camera::new(Vec3::new(-2.0, 2.0, 1.0),
+                          Vec3::new(0.0, 0.0, -1.0),
+                          Vec3::new(0.0, 1.0, 0.0),
+                          90.0, nx as f32 / ny as f32);
     let radius = std::f32::consts::FRAC_PI_4.cos();
     let world: Vec<Box<dyn Hittable>> = vec![
         Box::new(Sphere::new(Vec3::new(-radius, 0.0, -1.0), radius, Rc::new(Lambertian::new(Vec3::new(0.0, 0.0, 1.0))))),
