@@ -72,7 +72,8 @@ impl Hittable for Vec<&dyn Hittable> {
 
 fn color(r: Ray, world: &Vec<&dyn Hittable>) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.0, std::f32::MAX) {
-        return 0.5 * Vec3::new(hit.normal.x()+1.0, hit.normal.y()+1.0, hit.normal.z()+1.0);
+        let target = hit.p + hit.normal + random_in_unit_sphere();
+        return 0.5 * color(Ray::new(hit.p, target - hit.p), world);
     }
 
     let unit_direction = r.direction().unit();
