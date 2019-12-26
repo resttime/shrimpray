@@ -20,12 +20,14 @@ use util::*;
 
 fn color(r: Ray, world: &Vec<Box<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
-        if let Some((scattered, attenuation)) = hit.material.scatter(r, &hit) {
-            if depth < 50 {
+        if depth < 50 {
+            if let Some((scattered, attenuation)) = hit.material.scatter(r, &hit) {
                 return attenuation * color(scattered, world, depth + 1);
             } else {
                 return Vec3::new(0.0, 0.0, 0.0);
             }
+        } else {
+            return Vec3::new(0.0, 0.0, 0.0);
         }
     }
 
