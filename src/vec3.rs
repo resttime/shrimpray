@@ -91,7 +91,7 @@ impl DivAssign<f32> for Vec3 {
 }
 
 impl Vec3 {
-    fn mag(&self) -> f32 {
+    pub fn mag(&self) -> f32 {
         dot(*self, *self).sqrt()
     }
     pub fn unit(&self) -> Vec3 {
