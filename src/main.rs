@@ -70,22 +70,9 @@ impl Hittable for Vec<Box<dyn Hittable>> {
     }
 }
 
-fn color(r: Ray) -> Vec3 {
-    let s = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5);
-    let q = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0);
-    match s.hit(r, 0.0, 1.0) {
-        Some(h) => {
-            let normal = h.normal;
-            return 0.5 * Vec3::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
-        }
-        None => (),
-    }
-    match q.hit(r, 0.0, std::f32::MAX) {
-        Some(h) => {
-            let normal = h.normal;
-            return 0.5 * Vec3::new(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
-        }
-        None => (),
+fn color(r: Ray, world: &Vec<Box<dyn Hittable>>) -> Vec3 {
+    if let Some(hit) = world.hit(r, 0.0, std::f32::MAX) {
+        return 0.5 * Vec3::new(hit.normal.x()+1.0, hit.normal.y()+1.0, hit.normal.z()+1.0);
     }
 
     let unit_direction = r.direction().unit();
@@ -115,6 +102,9 @@ fn main() {
     println!("255");
 
     let cam = Camera::default();
+    let s = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5);
+    let q = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0);
+    let world = vec![Box::new(s) as Box<dyn Hittable>, Box::new(q) as Box<dyn Hittable>];
 
     for j in (0..ny).rev() {
         for i in 0..nx {
@@ -123,7 +113,7 @@ fn main() {
                 let u: f32 = (i as f32 + rand_float()) / nx as f32;
                 let v: f32 = (j as f32 + rand_float()) / ny as f32;
                 let r = cam.get_ray(u, v);
-                col += color(r);
+                col += color(r, &world);
             }
             col /= ns as f32;
 
