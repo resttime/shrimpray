@@ -56,7 +56,7 @@ impl Hittable for Sphere {
     }
 }
 
-impl Hittable for Vec<Box<dyn Hittable>> {
+impl Hittable for Vec<&dyn Hittable> {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_t: f32 = t_max;
         let mut closest_hit: Option<HitRecord> = None;
@@ -70,7 +70,7 @@ impl Hittable for Vec<Box<dyn Hittable>> {
     }
 }
 
-fn color(r: Ray, world: &Vec<Box<dyn Hittable>>) -> Vec3 {
+fn color(r: Ray, world: &Vec<&dyn Hittable>) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.0, std::f32::MAX) {
         return 0.5 * Vec3::new(hit.normal.x()+1.0, hit.normal.y()+1.0, hit.normal.z()+1.0);
     }
@@ -104,7 +104,7 @@ fn main() {
     let cam = Camera::default();
     let s = Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5);
     let q = Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0);
-    let world = vec![Box::new(s) as Box<dyn Hittable>, Box::new(q) as Box<dyn Hittable>];
+    let world = vec![&s as &dyn Hittable, &q as &dyn Hittable];
 
     for j in (0..ny).rev() {
         for i in 0..nx {
