@@ -29,9 +29,10 @@ pub trait Hittable {
 impl Hittable for Sphere {
     // Solves a quadratic equation
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let oc = r.origin() - self.center;
         let a = dot(r.b, r.b);
-        let b = dot(r.b, r.a - self.center);
-        let c = dot(r.a - self.center, r.a - self.center) - self.radius * self.radius;
+        let b = dot(oc, r.b);
+        let c = dot(oc, oc) - self.radius * self.radius;
 
         let discriminant = b * b - a * c;
         if discriminant > 0.0 {
