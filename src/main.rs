@@ -7,7 +7,7 @@ mod camera;
 use camera::Camera;
 
 mod obj;
-use obj::Sphere;
+use obj::{MovingSphere, Sphere};
 
 mod hit;
 use hit::Hittable;
@@ -85,8 +85,11 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
             if (center - Vec3::new(4.0, 0.2, 0.0)).mag() > 0.9 {
                 if choose_mat < 0.8 {
                     // diffuse
-                    scene.push(Box::new(Sphere::new(
+                    scene.push(Box::new(MovingSphere::new(
                         center,
+                        center+Vec3::new(0.0, 0.5 * rand_float(), 0.0),
+                        0.0,
+                        1.0,
                         0.2,
                         Rc::new(Lambertian::new(Vec3::new(
                             rand_float() * rand_float(),
@@ -138,7 +141,7 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
 }
 
 fn main() {
-    let (nx, ny, ns) = (1200, 800, 100);
+    let (nx, ny, ns) = (150, 100, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -156,6 +159,8 @@ fn main() {
         nx as f32 / ny as f32,
         aperture,
         dist_to_focus,
+        0.0,
+        1.0,
     );
 
     let world = random_scene();

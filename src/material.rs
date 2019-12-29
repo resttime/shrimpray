@@ -18,9 +18,9 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
         let target = hit.p + hit.normal + random_in_unit_sphere();
-        let scattered = Ray::new(hit.p, target - hit.p);
+        let scattered = Ray::new(hit.p, target - hit.p, ray_in.time());
         let attenuation = self.albedo;
 
         Some((scattered, attenuation))
@@ -48,7 +48,7 @@ impl Metal {
 impl Material for Metal {
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
         let reflected: Vec3 = reflect(ray_in.direction().unit(), hit.normal);
-        let scattered = Ray::new(hit.p, reflected + self.fuzz * random_in_unit_sphere());
+        let scattered = Ray::new(hit.p, reflected + self.fuzz * random_in_unit_sphere(), ray_in.time());
         let attenuation = self.albedo;
 
         if dot(scattered.direction(), hit.normal) > 0.0 {
@@ -91,9 +91,9 @@ impl Material for Dielectric {
         if let Some(refracted) = refract(ray_in.direction(), outward_normal, ni_over_nt) {
             let refract_prob = 1.0 - schlick(cosine, self.ref_idx);
             if rand_float() < refract_prob {
-                return Some((Ray::new(hit.p, refracted), attenuation));
+                return Some((Ray::new(hit.p, refracted, ray_in.time()), attenuation));
             }
         }
-        Some((Ray::new(hit.p, reflected), attenuation))
+        Some((Ray::new(hit.p, reflected, ray_in.time()), attenuation))
     }
 }
