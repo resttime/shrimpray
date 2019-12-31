@@ -18,6 +18,9 @@ use bvh::BvhNode;
 mod material;
 use material::{Dielectric, Lambertian, Metal};
 
+mod texture;
+use texture::ConstantTexture;
+
 mod util;
 use util::*;
 
@@ -45,12 +48,12 @@ fn regular_scene() -> Vec<Rc<dyn Hittable>> {
         Rc::new(Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
-            Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5))),
+            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.1, 0.2, 0.5))))),
         )),
         Rc::new(Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
-            Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
+            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.8, 0.8, 0.0))))),
         )),
         Rc::new(Sphere::new(
             Vec3::new(1.0, 0.0, -1.0),
@@ -74,7 +77,7 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
     scene.push(Rc::new(Sphere::new(
         Vec3::new(0.0, -1000.0, -1.0),
         1000.0,
-        Rc::new(Lambertian::new(Vec3::new(0.5, 0.5, 0.5))),
+        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.5, 0.5, 0.5))))),
     )));
 
     for a in -11..11 {
@@ -94,11 +97,11 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
                         0.0,
                         1.0,
                         0.2,
-                        Rc::new(Lambertian::new(Vec3::new(
+                        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
                             rand_float() * rand_float(),
                             rand_float() * rand_float(),
                             rand_float() * rand_float(),
-                        ))),
+                        ))))),
                     )));
                 } else if choose_mat < 0.95 {
                     // metal
@@ -133,8 +136,8 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
     scene.push(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
-        Rc::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))),
-    )));
+        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.4, 0.2, 0.1)))),
+    ))));
     scene.push(Rc::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
