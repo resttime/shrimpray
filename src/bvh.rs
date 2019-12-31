@@ -1,6 +1,8 @@
+use std::rc::Rc;
+
 use crate::hit::Hittable;
-use crate::vec3::{Ray, Vec3};
 use crate::util::*;
+use crate::vec3::{Ray, Vec3};
 
 pub struct AABB {
     _min: Vec3,
@@ -38,61 +40,86 @@ impl AABB {
     }
 }
 
-pub fn surrounding_box(box0: AABB, box1: AABB) -> AABB {
+pub fn surrounding_bbox(bbox0: AABB, bbox1: AABB) -> AABB {
     let small = Vec3::new(
-        box0.min().x().min(box1.min().x()),
-        box0.min().y().min(box1.min().y()),
-        box0.min().z().min(box1.min().z()),
+        bbox0.min().x().min(bbox1.min().x()),
+        bbox0.min().y().min(bbox1.min().y()),
+        bbox0.min().z().min(bbox1.min().z()),
     );
     let big = Vec3::new(
-        box0.max().x().max(box1.max().x()),
-        box0.max().y().max(box1.max().y()),
-        box0.max().z().max(box1.max().z()),
+        bbox0.max().x().max(bbox1.max().x()),
+        bbox0.max().y().max(bbox1.max().y()),
+        bbox0.max().z().max(bbox1.max().z()),
     );
     AABB::new(small, big)
 }
 
 pub struct BvhNode {
-    pub left: Box<dyn Hittable>,
-    pub right: Box<dyn Hittable>,
+    pub left: Option<Rc<dyn Hittable>>,
+    pub right: Option<Rc<dyn Hittable>>,
     pub bbox: AABB,
 }
 
 impl BvhNode {
-    // TODO Complete method
-    pub fn new(list: &mut Vec<Box<dyn Hittable>>, time0: f32, time1: f32) {
+    pub fn new(list: &mut Vec<Rc<dyn Hittable>>, time0: f32, time1: f32) -> Self {
         let axis = (3.0 * rand_float()) as u32;
         match axis {
-            0 => {},
-            1 => (),
-            2 => (),
-            _ => (),
+            0 => {
+                list.sort_by(box_compare_x);
+            }
+            1 => {
+                list.sort_by(box_compare_y);
+            }
+            2 => {
+                list.sort_by(box_compare_z);
+            }
+            _ => {}
+        }
+
+        let (left, right): (Rc<dyn Hittable>, Rc<dyn Hittable>);
+        let len = list.len();
+        match len {
+            1 => {
+                left = list[0].clone();
+                right = list[0].clone();
+            }
+            2 => {
+                left = list[0].clone();
+                right = list[1].clone();
+            }
+            _ => {
+                left = Rc::new(BvhNode::new(&mut list[0..len / 2].to_vec(), time0, time1));
+                right = Rc::new(BvhNode::new(&mut list[len / 2..].to_vec(), time0, time1));
+            }
+        }
+
+        let l_bbox = left.bounding_box(time0, time1).expect("no bounding box");
+        let r_bbox = right.bounding_box(time0, time1).expect("no bounding box");
+
+        Self {
+            left: Some(left),
+            right: Some(right),
+            bbox: surrounding_bbox(l_bbox, r_bbox),
         }
     }
 }
 
-pub fn box_compare_x(a: &dyn Hittable, b: &dyn Hittable) -> std::cmp::Ordering {
+pub fn box_compare_x(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>) -> std::cmp::Ordering {
     match (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0)) {
-        (Some(lbox), Some(rbox)) => {
-            lbox.min().x().partial_cmp(&rbox.min().x()).unwrap()
-        },
+        (Some(lbox), Some(rbox)) => lbox.min().x().partial_cmp(&rbox.min().x()).unwrap(),
         (_, _) => panic!("Missing bounding box in a BvhNode contructor"),
     }
 }
 
-pub fn box_compare_y(a: &dyn Hittable, b: &dyn Hittable) -> std::cmp::Ordering {
+pub fn box_compare_y(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>) -> std::cmp::Ordering {
     match (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0)) {
-        (Some(lbox), Some(rbox)) => {
-            lbox.min().y().partial_cmp(&rbox.min().y()).unwrap()
-        },
+        (Some(lbox), Some(rbox)) => lbox.min().y().partial_cmp(&rbox.min().y()).unwrap(),
         (_, _) => panic!("Missing bounding box in a BvhNode contructor"),
     }
 }
-pub fn box_compare_z(a: &dyn Hittable, b: &dyn Hittable) -> std::cmp::Ordering {
+pub fn box_compare_z(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>) -> std::cmp::Ordering {
     match (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0)) {
-        (Some(lbox), Some(rbox)) => {
-            lbox.min().z().partial_cmp(&rbox.min().z()).unwrap()
-        },
+        (Some(lbox), Some(rbox)) => lbox.min().z().partial_cmp(&rbox.min().z()).unwrap(),
         (_, _) => panic!("Missing bounding box in a BvhNode contructor"),
     }
 }

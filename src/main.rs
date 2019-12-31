@@ -13,6 +13,7 @@ mod hit;
 use hit::Hittable;
 
 mod bvh;
+use bvh::BvhNode;
 
 mod material;
 use material::{Dielectric, Lambertian, Metal};
@@ -20,7 +21,7 @@ use material::{Dielectric, Lambertian, Metal};
 mod util;
 use util::*;
 
-fn color(r: Ray, world: &Vec<Box<dyn Hittable>>, depth: u32) -> Vec3 {
+fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         if depth < 50 {
             if let Some((scattered, attenuation)) = hit.material.scatter(r, &hit) {
@@ -39,38 +40,38 @@ fn color(r: Ray, world: &Vec<Box<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 
-fn regular_scene() -> Vec<Box<dyn Hittable>> {
-    let world: Vec<Box<dyn Hittable>> = vec![
-        Box::new(Sphere::new(
+fn regular_scene() -> Vec<Rc<dyn Hittable>> {
+    let world: Vec<Rc<dyn Hittable>> = vec![
+        Rc::new(Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
             Rc::new(Lambertian::new(Vec3::new(0.1, 0.2, 0.5))),
         )),
-        Box::new(Sphere::new(
+        Rc::new(Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
             Rc::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0))),
         )),
-        Box::new(Sphere::new(
+        Rc::new(Sphere::new(
             Vec3::new(1.0, 0.0, -1.0),
             0.5,
             Rc::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3)),
         )),
-        Box::new(Sphere::new(
+        Rc::new(Sphere::new(
             Vec3::new(-1.0, 0.0, -1.0),
             0.5,
             Rc::new(Dielectric::new(1.5)),
         )),
-        Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45,
+        Rc::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45,
             Rc::new(Dielectric::new(1.5)),
         )),
     ];
     world
 }
 
-fn random_scene() -> Vec<Box<dyn Hittable>> {
-    let mut scene: Vec<Box<dyn Hittable>> = Vec::new();
-    scene.push(Box::new(Sphere::new(
+fn random_scene() -> Vec<Rc<dyn Hittable>> {
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    scene.push(Rc::new(Sphere::new(
         Vec3::new(0.0, -1000.0, -1.0),
         1000.0,
         Rc::new(Lambertian::new(Vec3::new(0.5, 0.5, 0.5))),
@@ -87,7 +88,7 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
             if (center - Vec3::new(4.0, 0.2, 0.0)).mag() > 0.9 {
                 if choose_mat < 0.8 {
                     // diffuse
-                    scene.push(Box::new(MovingSphere::new(
+                    scene.push(Rc::new(MovingSphere::new(
                         center,
                         center+Vec3::new(0.0, 0.5 * rand_float(), 0.0),
                         0.0,
@@ -101,7 +102,7 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
                     )));
                 } else if choose_mat < 0.95 {
                     // metal
-                    scene.push(Box::new(Sphere::new(
+                    scene.push(Rc::new(Sphere::new(
                         center,
                         0.2,
                         Rc::new(Metal::new(
@@ -115,7 +116,7 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
                     )));
                 } else {
                     // glass
-                    scene.push(Box::new(Sphere::new(
+                    scene.push(Rc::new(Sphere::new(
                         center,
                         0.2,
                         Rc::new(Dielectric::new(1.5)),
@@ -124,17 +125,17 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
             }
         }
     }
-    scene.push(Box::new(Sphere::new(
+    scene.push(Rc::new(Sphere::new(
         Vec3::new(0.0, 1.0, 0.0),
         1.0,
         Rc::new(Dielectric::new(1.5)),
     )));
-    scene.push(Box::new(Sphere::new(
+    scene.push(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
         Rc::new(Lambertian::new(Vec3::new(0.4, 0.2, 0.1))),
     )));
-    scene.push(Box::new(Sphere::new(
+    scene.push(Rc::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
         Rc::new(Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0)),
@@ -143,7 +144,7 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
 }
 
 fn main() {
-    let (nx, ny, ns) = (150, 100, 100);
+    let (nx, ny, ns) = (300, 200, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -165,7 +166,7 @@ fn main() {
         1.0,
     );
 
-    let world = random_scene();
+    let world = BvhNode::new(&mut random_scene(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {

@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
+use crate::bvh::{surrounding_bbox, BvhNode, AABB};
 use crate::material::Material;
 use crate::obj::{MovingSphere, Sphere};
 use crate::vec3::{dot, Ray, Vec3};
-use crate::bvh::{AABB, BvhNode, surrounding_box};
 
 pub struct HitRecord {
     pub t: f32,
@@ -65,7 +65,7 @@ impl Hittable for Sphere {
     }
 }
 
-impl Hittable for Vec<Box<dyn Hittable>> {
+impl Hittable for Vec<Rc<dyn Hittable>> {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_t: f32 = t_max;
         let mut closest_hit: Option<HitRecord> = None;
@@ -91,7 +91,7 @@ impl Hittable for Vec<Box<dyn Hittable>> {
 
         for obj in self.iter().skip(1) {
             match obj.bounding_box(t0, t1) {
-                Some(new_bbox) => bbox = surrounding_box(bbox, new_bbox),
+                Some(new_bbox) => bbox = surrounding_bbox(bbox, new_bbox),
                 None => {
                     return None;
                 }
@@ -138,26 +138,30 @@ impl Hittable for MovingSphere {
             self.center(t1) - Vec3::new(self.radius, self.radius, self.radius),
             self.center(t1) + Vec3::new(self.radius, self.radius, self.radius),
         );
-        Some(surrounding_box(bbox0, bbox1))
+        Some(surrounding_bbox(bbox0, bbox1))
     }
 }
 
 impl Hittable for BvhNode {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        if self.bbox.hit(&r, t_min, t_max) {
-            match (self.left.hit(r, t_min, t_max),
-                   self.right.hit(r, t_min, t_max)) {
-                (Some(lhit), Some(rhit)) => {
-                    if lhit.t < rhit.t {
-                        return Some(lhit);
-                    } else {
-                        return Some(rhit);
+        match (&self.left, &self.right) {
+            (Some(left), Some(right)) => {
+                if self.bbox.hit(&r, t_min, t_max) {
+                    match (left.hit(r, t_min, t_max), right.hit(r, t_min, t_max)) {
+                        (Some(lhit), Some(rhit)) => {
+                            if lhit.t < rhit.t {
+                                return Some(lhit);
+                            } else {
+                                return Some(rhit);
+                            }
+                        }
+                        (Some(lhit), None) => return Some(lhit),
+                        (None, Some(rhit)) => return Some(rhit),
+                        (None, None) => (),
                     }
-                },
-                (Some(lhit), None) => { return Some(lhit) },
-                (None, Some(rhit)) => { return Some(rhit) },
-                (None, None) => (),
+                }
             }
+            (_, _) => (),
         }
         None
     }
