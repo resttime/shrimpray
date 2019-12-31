@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::hit::HitRecord;
 use crate::util::*;
 use crate::vec3::{dot, reflect, refract, Ray, Vec3};
@@ -9,11 +11,11 @@ pub trait Material {
 
 // Diffuse
 pub struct Lambertian {
-    albedo: Box<dyn Texture>,
+    albedo: Rc<dyn Texture>,
 }
 
 impl Lambertian {
-    pub fn new(a: Box<dyn Texture>) -> Self {
+    pub fn new(a: Rc<dyn Texture>) -> Self {
         Self { albedo: a }
     }
 }

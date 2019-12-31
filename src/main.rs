@@ -47,14 +47,14 @@ fn regular_scene() -> Vec<Rc<dyn Hittable>> {
         Rc::new(Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
-            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+            Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
                 0.1, 0.2, 0.5,
             ))))),
         )),
         Rc::new(Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
-            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+            Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
                 0.8, 0.8, 0.0,
             ))))),
         )),
@@ -79,7 +79,7 @@ fn regular_scene() -> Vec<Rc<dyn Hittable>> {
 
 fn random_scene() -> Vec<Rc<dyn Hittable>> {
     let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
-    let checker = Box::new(CheckerTexture::new(
+    let checker = Rc::new(CheckerTexture::new(
         Box::new(ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1))),
         Box::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
     ));
@@ -106,7 +106,7 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
                         0.0,
                         1.0,
                         0.2,
-                        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+                        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
                             rand_float() * rand_float(),
                             rand_float() * rand_float(),
                             rand_float() * rand_float(),
@@ -145,7 +145,7 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
     scene.push(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
-        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
             0.4, 0.2, 0.1,
         ))))),
     )));
@@ -159,11 +159,11 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
 
 fn two_spheres_scene() -> Vec<Rc<dyn Hittable>> {
     let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
-    let checker = Box::new(CheckerTexture::new(
+    let checker = Rc::new(CheckerTexture::new(
         Box::new(ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1))),
         Box::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
     ));
-    let checker2 = Box::new(CheckerTexture::new(
+    let checker2 = Rc::new(CheckerTexture::new(
         Box::new(ConstantTexture::new(Vec3::new(0.1, 0.2, 0.3))),
         Box::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
     ));
