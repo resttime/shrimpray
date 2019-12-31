@@ -12,6 +12,8 @@ use obj::{MovingSphere, Sphere};
 mod hit;
 use hit::Hittable;
 
+mod bvh;
+
 mod material;
 use material::{Dielectric, Lambertian, Metal};
 
