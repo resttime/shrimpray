@@ -19,7 +19,7 @@ mod material;
 use material::{Dielectric, Lambertian, Metal};
 
 mod texture;
-use texture::ConstantTexture;
+use texture::{CheckerTexture, ConstantTexture};
 
 mod util;
 use util::*;
@@ -42,18 +42,21 @@ fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
     return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
 }
 
-
 fn regular_scene() -> Vec<Rc<dyn Hittable>> {
     let world: Vec<Rc<dyn Hittable>> = vec![
         Rc::new(Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
-            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.1, 0.2, 0.5))))),
+            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+                0.1, 0.2, 0.5,
+            ))))),
         )),
         Rc::new(Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
-            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.8, 0.8, 0.0))))),
+            Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+                0.8, 0.8, 0.0,
+            ))))),
         )),
         Rc::new(Sphere::new(
             Vec3::new(1.0, 0.0, -1.0),
@@ -65,7 +68,9 @@ fn regular_scene() -> Vec<Rc<dyn Hittable>> {
             0.5,
             Rc::new(Dielectric::new(1.5)),
         )),
-        Rc::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), -0.45,
+        Rc::new(Sphere::new(
+            Vec3::new(-1.0, 0.0, -1.0),
+            -0.45,
             Rc::new(Dielectric::new(1.5)),
         )),
     ];
@@ -74,10 +79,14 @@ fn regular_scene() -> Vec<Rc<dyn Hittable>> {
 
 fn random_scene() -> Vec<Rc<dyn Hittable>> {
     let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    let checker = Box::new(CheckerTexture::new(
+        Box::new(ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1))),
+        Box::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
+    ));
     scene.push(Rc::new(Sphere::new(
         Vec3::new(0.0, -1000.0, -1.0),
         1000.0,
-        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.5, 0.5, 0.5))))),
+        Rc::new(Lambertian::new(checker)),
     )));
 
     for a in -11..11 {
@@ -93,7 +102,7 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
                     // diffuse
                     scene.push(Rc::new(MovingSphere::new(
                         center,
-                        center+Vec3::new(0.0, 0.5 * rand_float(), 0.0),
+                        center + Vec3::new(0.0, 0.5 * rand_float(), 0.0),
                         0.0,
                         1.0,
                         0.2,
@@ -136,8 +145,10 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
     scene.push(Rc::new(Sphere::new(
         Vec3::new(-4.0, 1.0, 0.0),
         1.0,
-        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(0.4, 0.2, 0.1)))),
-    ))));
+        Rc::new(Lambertian::new(Box::new(ConstantTexture::new(Vec3::new(
+            0.4, 0.2, 0.1,
+        ))))),
+    )));
     scene.push(Rc::new(Sphere::new(
         Vec3::new(4.0, 1.0, 0.0),
         1.0,
@@ -146,22 +157,45 @@ fn random_scene() -> Vec<Rc<dyn Hittable>> {
     scene
 }
 
+fn two_spheres_scene() -> Vec<Rc<dyn Hittable>> {
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    let checker = Box::new(CheckerTexture::new(
+        Box::new(ConstantTexture::new(Vec3::new(0.2, 0.3, 0.1))),
+        Box::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
+    ));
+    let checker2 = Box::new(CheckerTexture::new(
+        Box::new(ConstantTexture::new(Vec3::new(0.1, 0.2, 0.3))),
+        Box::new(ConstantTexture::new(Vec3::new(0.9, 0.9, 0.9))),
+    ));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, -10.0, 0.0),
+        10.0,
+        Rc::new(Lambertian::new(checker)),
+    )));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 10.0, 0.0),
+        10.0,
+        Rc::new(Lambertian::new(checker2)),
+    )));
+    scene
+}
+
 fn main() {
-    let (nx, ny, ns) = (300, 200, 100);
+    let (nx, ny, ns) = (500, 300, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
 
-    let lookfrom = Vec3::new(7.5, 1.5, 2.0);
-    let lookat = Vec3::new(2.0, 0.0, 0.1);
-    let dist_to_focus = (lookfrom - lookat).mag();
-    let aperture = dist_to_focus / 125.0;
+    let lookfrom = Vec3::new(13.0, 2.0, 3.0);
+    let lookat = Vec3::new(0.0, 0.0, 0.0);
+    let dist_to_focus = 10.0;
+    let aperture = 0.0;
 
     let cam = Camera::new(
         lookfrom,
         lookat,
         Vec3::new(0.0, 1.0, 0.0),
-        45.0,
+        20.0,
         nx as f32 / ny as f32,
         aperture,
         dist_to_focus,
@@ -169,7 +203,7 @@ fn main() {
         1.0,
     );
 
-    let world = BvhNode::new(&mut random_scene(), 0.0, 1.0);
+    let world = BvhNode::new(&mut two_spheres_scene(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
