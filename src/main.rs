@@ -19,12 +19,13 @@ mod material;
 use material::{Dielectric, Lambertian, Metal};
 
 mod texture;
-use texture::{CheckerTexture, ConstantTexture};
+use texture::{CheckerTexture, ConstantTexture, NoiseTexture};
 
 mod util;
 use util::*;
 
 mod perlin;
+use perlin::Perlin;
 
 fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
@@ -182,8 +183,23 @@ fn two_spheres_scene() -> Vec<Rc<dyn Hittable>> {
     scene
 }
 
+fn two_perlin_spheres_scene() -> Vec<Rc<dyn Hittable>> {
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    let perlin_texture = Rc::new(NoiseTexture::new(Perlin::new()));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::new(Lambertian::new(perlin_texture.clone())),
+    )));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 2.0, 0.0),
+        2.0,
+        Rc::new(Lambertian::new(perlin_texture)),
+    )));
+    scene
+}
 fn main() {
-    let (nx, ny, ns) = (500, 300, 100);
+    let (nx, ny, ns) = (1200, 600, 300);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -205,7 +221,7 @@ fn main() {
         1.0,
     );
 
-    let world = BvhNode::new(&mut two_spheres_scene(), 0.0, 1.0);
+    let world = BvhNode::new(&mut two_perlin_spheres_scene(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
