@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, Sub};
+use std::ops::*;
 
 #[derive(Copy, Clone, Default)]
 pub struct Vec3 {
@@ -79,6 +79,14 @@ impl Mul<Vec3> for f32 {
             e1: rhs.e1 * self,
             e2: rhs.e2 * self,
         }
+    }
+}
+
+impl MulAssign<f32> for Vec3 {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.e0 *= rhs;
+        self.e1 *= rhs;
+        self.e2 *= rhs;
     }
 }
 
