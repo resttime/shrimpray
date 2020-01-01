@@ -25,12 +25,23 @@ impl Perlin {
         let v = p.y() - p.y().floor();
         let w = p.z() - p.z().floor();
 
-        let i = (4.0 * p.x()) as usize & 255;
-        let j = (4.0 * p.y()) as usize & 255;
-        let k = (4.0 * p.z()) as usize & 255;
+        let i = p.x().floor() as usize;
+        let j = p.y().floor() as usize;
+        let k = p.z().floor() as usize;
 
-        let index = (self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]) as usize;
-        self.ranfloat[index]
+        let mut c = [[[0.0; 2]; 2]; 2];
+
+        for di in 0..2 {
+            for dj in 0..2 {
+                for dk in 0..2 {
+                    let index = (self.perm_x[(i+di) & 255] ^
+                                 self.perm_y[(j+dj) & 255] ^
+                                 self.perm_z[(k+dk) & 255]) as usize;
+                    c[di][dj][dk] = self.ranfloat[index];
+                }
+            }
+        }
+        trilinear_interp(c, u, v, w)
     }
 
     fn generate() -> Vec<f32> {

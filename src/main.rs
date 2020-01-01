@@ -199,7 +199,7 @@ fn two_perlin_spheres_scene() -> Vec<Rc<dyn Hittable>> {
     scene
 }
 fn main() {
-    let (nx, ny, ns) = (1200, 600, 300);
+    let (nx, ny, ns) = (500, 300, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
