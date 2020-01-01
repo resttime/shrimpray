@@ -24,6 +24,8 @@ use texture::{CheckerTexture, ConstantTexture};
 mod util;
 use util::*;
 
+mod perlin;
+
 fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         if depth < 50 {
