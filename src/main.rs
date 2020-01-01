@@ -185,7 +185,7 @@ fn two_spheres_scene() -> Vec<Rc<dyn Hittable>> {
 
 fn two_perlin_spheres_scene() -> Vec<Rc<dyn Hittable>> {
     let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
-    let perlin_texture = Rc::new(NoiseTexture::new(Perlin::new()));
+    let perlin_texture = Rc::new(NoiseTexture::new(4.0, Perlin::new()));
     scene.push(Rc::new(Sphere::new(
         Vec3::new(0.0, -1000.0, 0.0),
         1000.0,

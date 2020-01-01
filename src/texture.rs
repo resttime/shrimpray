@@ -1,5 +1,5 @@
-use crate::vec3::Vec3;
 use crate::perlin::Perlin;
+use crate::vec3::Vec3;
 
 pub trait Texture {
     fn value(&self, u: f32, v: f32, p: &Vec3) -> Vec3;
@@ -44,17 +44,21 @@ impl Texture for CheckerTexture {
 }
 
 pub struct NoiseTexture {
+    scale: f32,
     noise: Perlin,
 }
 
 impl NoiseTexture {
-    pub fn new(noise: Perlin) -> Self {
-        Self { noise: noise }
+    pub fn new(scale: f32, noise: Perlin) -> Self {
+        Self {
+            scale: scale,
+            noise: noise,
+        }
     }
 }
 
 impl Texture for NoiseTexture {
     fn value(&self, _u: f32, _v: f32, p: &Vec3) -> Vec3 {
-        Vec3::new(1.0, 1.0, 1.0) * self.noise.noise(p)
+        Vec3::new(1.0, 1.0, 1.0) * self.noise.noise(&(self.scale * *p))
     }
 }
