@@ -21,9 +21,12 @@ impl Perlin {
     }
 
     pub fn noise(&self, p: &Vec3) -> f32 {
-        let u = p.x() - p.x().floor();
-        let v = p.y() - p.y().floor();
-        let w = p.z() - p.z().floor();
+        let mut u = p.x() - p.x().floor();
+        let mut v = p.y() - p.y().floor();
+        let mut w = p.z() - p.z().floor();
+        u = u * u * (3.0 - 2.0 * u);
+        v = v * v * (3.0 - 2.0 * v);
+        w = w * w * (3.0 - 2.0 * w);
 
         let i = p.x().floor() as usize;
         let j = p.y().floor() as usize;
@@ -34,9 +37,9 @@ impl Perlin {
         for di in 0..2 {
             for dj in 0..2 {
                 for dk in 0..2 {
-                    let index = (self.perm_x[(i+di) & 255] ^
-                                 self.perm_y[(j+dj) & 255] ^
-                                 self.perm_z[(k+dk) & 255]) as usize;
+                    let index = (self.perm_x[(i + di) & 255]
+                        ^ self.perm_y[(j + dj) & 255]
+                        ^ self.perm_z[(k + dk) & 255]) as usize;
                     c[di][dj][dk] = self.ranfloat[index];
                 }
             }
