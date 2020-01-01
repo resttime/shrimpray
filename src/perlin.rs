@@ -3,7 +3,7 @@ use rand::seq::SliceRandom;
 use crate::util::*;
 use crate::vec3::Vec3;
 
-struct Perlin {
+pub struct Perlin {
     ranfloat: Vec<f32>,
     perm_x: Vec<u32>,
     perm_y: Vec<u32>,
@@ -11,26 +11,30 @@ struct Perlin {
 }
 
 impl Perlin {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
-            ranfloat: (0..256).map(|_| rand_float()).collect(),
+            ranfloat: Perlin::generate(),
             perm_x: Perlin::generate_perm(),
             perm_y: Perlin::generate_perm(),
             perm_z: Perlin::generate_perm(),
         }
     }
 
-    fn noise(&self, p: &Vec3) -> f32 {
+    pub fn noise(&self, p: &Vec3) -> f32 {
         let u = p.x() - p.x().floor();
         let v = p.y() - p.y().floor();
         let w = p.z() - p.z().floor();
 
-        let i = p.x().floor() as usize;
-        let j = p.y().floor() as usize;
-        let k = p.z().floor() as usize;
+        let i = (4.0 * p.x()) as usize & 255;
+        let j = (4.0 * p.y()) as usize & 255;
+        let k = (4.0 * p.z()) as usize & 255;
 
         let index = (self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]) as usize;
         self.ranfloat[index]
+    }
+
+    fn generate() -> Vec<f32> {
+        (0..256).map(|_| rand_float()).collect()
     }
 
     fn generate_perm() -> Vec<u32> {
