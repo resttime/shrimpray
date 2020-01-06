@@ -61,7 +61,7 @@ pub struct BvhNode {
 }
 
 impl BvhNode {
-    pub fn new(list: &mut Vec<Rc<dyn Hittable>>, time0: f32, time1: f32) -> Self {
+    pub fn new(list: &mut [Rc<dyn Hittable>], time0: f32, time1: f32) -> Self {
         let axis = (3.0 * rand_float()) as u32;
         match axis {
             0 => {
@@ -88,8 +88,8 @@ impl BvhNode {
                 right = list[1].clone();
             }
             _ => {
-                left = Rc::new(BvhNode::new(&mut list[0..len / 2].to_vec(), time0, time1));
-                right = Rc::new(BvhNode::new(&mut list[len / 2..].to_vec(), time0, time1));
+                left = Rc::new(BvhNode::new(&mut list[0..len / 2], time0, time1));
+                right = Rc::new(BvhNode::new(&mut list[len / 2..], time0, time1));
             }
         }
 
