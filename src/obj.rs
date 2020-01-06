@@ -17,6 +17,13 @@ impl Sphere {
             material: material,
         }
     }
+    pub fn get_sphere_uv(p: &Vec3) -> (f32, f32) {
+        let phi = p.z().atan2(p.x());
+        let theta = p.y().asin();
+        let u = 1.0 - (phi + std::f32::consts::PI) / (2.0 * std::f32::consts::PI);
+        let v = (theta + std::f32::consts::FRAC_PI_2) / std::f32::consts::PI;
+        (u, v)
+    }
 }
 
 pub struct MovingSphere {
@@ -47,6 +54,7 @@ impl MovingSphere {
         }
     }
     pub fn center(&self, time: f32) -> Vec3 {
-        self.center0 + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
+        self.center0
+            + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
     }
 }
