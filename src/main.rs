@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+use image::GenericImageView;
+
 mod vec3;
 use vec3::{Ray, Vec3};
 
@@ -19,7 +21,7 @@ mod material;
 use material::{Dielectric, Lambertian, Metal};
 
 mod texture;
-use texture::{CheckerTexture, ConstantTexture, NoiseTexture};
+use texture::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
 
 mod util;
 use util::*;
@@ -198,14 +200,36 @@ fn two_perlin_spheres_scene() -> Vec<Rc<dyn Hittable>> {
     )));
     scene
 }
+
+fn earth_scene() -> Vec<Rc<dyn Hittable>> {
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    let perlin_texture = Rc::new(NoiseTexture::new(4.0, Perlin::new()));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::new(Lambertian::new(perlin_texture)),
+    )));
+
+    let img = image::open("texture/earthmap.jpg").unwrap();
+    let (nx, ny) = img.dimensions();
+    let data = img.raw_pixels();
+    let image_texture = Rc::new(ImageTexture::new(data, nx as i32, ny as i32));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 2.0, 0.0),
+        2.0,
+        Rc::new(Lambertian::new(image_texture)),
+    )));
+    scene
+}
+
 fn main() {
     let (nx, ny, ns) = (500, 300, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
 
-    let lookfrom = Vec3::new(13.0, 2.0, 3.0);
-    let lookat = Vec3::new(0.0, 0.0, 0.0);
+    let lookfrom = Vec3::new(13.0, 13.0, 13.0);
+    let lookat = Vec3::new(0.0, 2.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.0;
 
@@ -221,7 +245,7 @@ fn main() {
         1.0,
     );
 
-    let world = BvhNode::new(&mut two_perlin_spheres_scene(), 0.0, 1.0);
+    let world = BvhNode::new(&mut earth_scene(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
