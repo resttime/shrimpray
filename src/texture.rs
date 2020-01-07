@@ -65,14 +65,14 @@ impl Texture for NoiseTexture {
     }
 }
 
-struct ImageTexture {
+pub struct ImageTexture {
     data: Vec<u8>,
     nx: i32,
     ny: i32,
 }
 
 impl ImageTexture {
-    fn new(pixels: Box<Vec<u8>>, a: i32, b: i32) -> Self {
+    pub fn new(pixels: Vec<u8>, a: i32, b: i32) -> Self {
         Self{ data: pixels, nx: a, ny: b }
     }
 }
