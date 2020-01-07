@@ -9,15 +9,19 @@ pub struct HitRecord {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
+    pub u: f32,
+    pub v: f32,
     pub material: Rc<dyn Material>,
 }
 
 impl HitRecord {
-    fn new(t: f32, p: Vec3, normal: Vec3, material: Rc<dyn Material>) -> HitRecord {
+    fn new(t: f32, p: Vec3, normal: Vec3, u: f32, v: f32, material: Rc<dyn Material>) -> HitRecord {
         HitRecord {
             t: t,
             p: p,
             normal: normal,
+            u: u,
+            v: v,
             material: material,
         }
     }
@@ -43,7 +47,8 @@ impl Hittable for Sphere {
             if t_min < t && t < t_max {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center) / self.radius;
-                return Some(HitRecord::new(t, point, normal, Rc::clone(&self.material)));
+                let (u, v) = Sphere::get_sphere_uv(&normal);
+                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
             }
 
             // Check larger parameter
@@ -51,7 +56,8 @@ impl Hittable for Sphere {
             if t_min < t && t < t_max {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center) / self.radius;
-                return Some(HitRecord::new(t, point, normal, Rc::clone(&self.material)));
+                let (u, v) = Sphere::get_sphere_uv(&normal);
+                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
             }
         }
         None
@@ -116,7 +122,8 @@ impl Hittable for MovingSphere {
             if t_min < t && t < t_max {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center(r.time())) / self.radius;
-                return Some(HitRecord::new(t, point, normal, Rc::clone(&self.material)));
+                let (u, v) = Sphere::get_sphere_uv(&normal);
+                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
             }
 
             // Check larger parameter
@@ -124,7 +131,8 @@ impl Hittable for MovingSphere {
             if t_min < t && t < t_max {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center(r.time())) / self.radius;
-                return Some(HitRecord::new(t, point, normal, Rc::clone(&self.material)));
+                let (u, v) = Sphere::get_sphere_uv(&normal);
+                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
             }
         }
         None
