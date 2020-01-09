@@ -1,11 +1,12 @@
 use std::rc::Rc;
 
 use crate::hit::HitRecord;
+use crate::texture::Texture;
 use crate::util::*;
 use crate::vec3::{dot, reflect, refract, Ray, Vec3};
-use crate::texture::Texture;
 
 pub trait Material {
+    // -> Option<SCATTERED: Ray, ATTENUATION: Vec3>
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)>;
     fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0)
@@ -54,7 +55,11 @@ impl Metal {
 impl Material for Metal {
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
         let reflected: Vec3 = reflect(ray_in.direction().unit(), hit.normal);
-        let scattered = Ray::new(hit.p, reflected + self.fuzz * random_in_unit_sphere(), ray_in.time());
+        let scattered = Ray::new(
+            hit.p,
+            reflected + self.fuzz * random_in_unit_sphere(),
+            ray_in.time(),
+        );
         let attenuation = self.albedo;
 
         if dot(scattered.direction(), hit.normal) > 0.0 {
@@ -67,7 +72,6 @@ impl Material for Metal {
 pub struct Dielectric {
     ref_idx: f32,
 }
-
 
 impl Dielectric {
     pub fn new(ri: f32) -> Self {
