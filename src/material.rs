@@ -7,6 +7,9 @@ use crate::texture::Texture;
 
 pub trait Material {
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)>;
+    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
+        Vec3::new(0.0, 0.0, 0.0)
+    }
 }
 
 // Diffuse
@@ -98,5 +101,24 @@ impl Material for Dielectric {
             }
         }
         Some((Ray::new(hit.p, reflected, ray_in.time()), attenuation))
+    }
+}
+
+struct DiffuseLight {
+    emit: Rc<dyn Texture>,
+}
+
+impl DiffuseLight {
+    pub fn new(a: Rc<dyn Texture>) -> Self {
+        Self { emit: a }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
+        None
+    }
+    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
+        self.emit.value(u, v, p)
     }
 }
