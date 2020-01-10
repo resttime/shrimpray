@@ -31,20 +31,18 @@ use perlin::Perlin;
 
 fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
+        let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);
         if depth < 50 {
             if let Some((scattered, attenuation)) = hit.material.scatter(r, &hit) {
-                return attenuation * color(scattered, world, depth + 1);
+                return emitted + attenuation * color(scattered, world, depth + 1);
             } else {
-                return Vec3::new(0.0, 0.0, 0.0);
+                return emitted;
             }
         } else {
-            return Vec3::new(0.0, 0.0, 0.0);
+            return emitted;
         }
     }
-
-    let unit_direction = r.direction().unit();
-    let t: f32 = 0.5 * (unit_direction.y() + 1.0);
-    return (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0);
+    Vec3::new(0.0, 0.0, 0.0)
 }
 
 fn regular_scene() -> Vec<Rc<dyn Hittable>> {
