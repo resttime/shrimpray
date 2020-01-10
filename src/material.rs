@@ -8,7 +8,7 @@ use crate::vec3::{dot, reflect, refract, Ray, Vec3};
 pub trait Material {
     // -> Option<SCATTERED: Ray, ATTENUATION: Vec3>
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)>;
-    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
+    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0)
     }
 }
@@ -119,7 +119,7 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)> {
+    fn scatter(&self, _ray_in: Ray, _hit: &HitRecord) -> Option<(Ray, Vec3)> {
         None
     }
     fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
