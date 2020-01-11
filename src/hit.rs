@@ -48,7 +48,14 @@ impl Hittable for Sphere {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center) / self.radius;
                 let (u, v) = Sphere::get_sphere_uv(&normal);
-                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
+                return Some(HitRecord::new(
+                    t,
+                    point,
+                    normal,
+                    u,
+                    v,
+                    Rc::clone(&self.material),
+                ));
             }
 
             // Check larger parameter
@@ -57,7 +64,14 @@ impl Hittable for Sphere {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center) / self.radius;
                 let (u, v) = Sphere::get_sphere_uv(&normal);
-                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
+                return Some(HitRecord::new(
+                    t,
+                    point,
+                    normal,
+                    u,
+                    v,
+                    Rc::clone(&self.material),
+                ));
             }
         }
         None
@@ -123,7 +137,14 @@ impl Hittable for MovingSphere {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center(r.time())) / self.radius;
                 let (u, v) = Sphere::get_sphere_uv(&normal);
-                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
+                return Some(HitRecord::new(
+                    t,
+                    point,
+                    normal,
+                    u,
+                    v,
+                    Rc::clone(&self.material),
+                ));
             }
 
             // Check larger parameter
@@ -132,7 +153,14 @@ impl Hittable for MovingSphere {
                 let point = r.point_at_parameter(t);
                 let normal = (point - self.center(r.time())) / self.radius;
                 let (u, v) = Sphere::get_sphere_uv(&normal);
-                return Some(HitRecord::new(t, point, normal, u, v, Rc::clone(&self.material)));
+                return Some(HitRecord::new(
+                    t,
+                    point,
+                    normal,
+                    u,
+                    v,
+                    Rc::clone(&self.material),
+                ));
             }
         }
         None
