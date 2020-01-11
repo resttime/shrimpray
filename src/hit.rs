@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::bvh::{surrounding_bbox, BvhNode, AABB};
 use crate::material::Material;
-use crate::obj::{MovingSphere, Sphere};
+use crate::obj::{MovingSphere, Sphere, XYRect};
 use crate::vec3::{dot, Ray, Vec3};
 
 pub struct HitRecord {
@@ -175,5 +175,30 @@ impl Hittable for BvhNode {
     }
     fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(AABB::new(self.bbox.min(), self.bbox.max()))
+    }
+}
+
+impl Hittable for XYRect {
+    fn hit(&self, r: Ray, t0: f32, t1: f32) -> Option<HitRecord> {
+        let t = (self.k - r.origin().z()) / r.direction().z();
+        if t < t0 || t > t1 {
+            return None;
+        }
+        let x = r.origin().x() + t * r.direction().x();
+        let y = r.origin().y() + t * r.direction().y();
+        if x < self.x0 || x > self.x1 || y < self.y0 || y > self.y1 {
+            return None;
+        }
+        let u = (x - self.x0) / (self.x1 - self.x0);
+        let v = (y - self.y0) / (self.y1 - self.y0);
+        let p = r.point_at_parameter(t);
+        let normal = Vec3::new(0.0, 0.0, 1.0);
+        Some(HitRecord::new(t, p, normal, u, v, self.material.clone()))
+    }
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
+        Some(AABB::new(
+            Vec3::new(self.x0, self.y0, self.k - 0.0001),
+            Vec3::new(self.x1, self.y1, self.k + 0.0001),
+        ))
     }
 }
