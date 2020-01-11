@@ -58,3 +58,25 @@ impl MovingSphere {
             + ((time - self.time0) / (self.time1 - self.time0)) * (self.center1 - self.center0)
     }
 }
+
+pub struct XYRect {
+    pub x0: f32,
+    pub x1: f32,
+    pub y0: f32,
+    pub y1: f32,
+    pub k: f32,
+    pub material: Rc<dyn Material>,
+}
+
+impl XYRect {
+    pub fn new(x0: f32, x1: f32, y0: f32, y1: f32, k: f32, material: Rc<dyn Material>) -> Self {
+        Self {
+            x0: x0,
+            x1: x1,
+            y0: y0,
+            y1: y1,
+            k: k,
+            material: material,
+        }
+    }
+}
