@@ -9,7 +9,7 @@ mod camera;
 use camera::Camera;
 
 mod obj;
-use obj::{MovingSphere, Sphere};
+use obj::{MovingSphere, Sphere, XYRect};
 
 mod hit;
 use hit::Hittable;
@@ -18,7 +18,7 @@ mod bvh;
 use bvh::BvhNode;
 
 mod material;
-use material::{Dielectric, Lambertian, Metal};
+use material::{Dielectric, DiffuseLight, Lambertian, Metal};
 
 mod texture;
 use texture::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
@@ -220,14 +220,45 @@ fn earth_scene() -> Vec<Rc<dyn Hittable>> {
     scene
 }
 
+fn simple_light() -> Vec<Rc<dyn Hittable>> {
+    let perlin_texture = Rc::new(NoiseTexture::new(4.0, Perlin::new()));
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::new(Lambertian::new(perlin_texture.clone())),
+    )));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 2.0, 0.0),
+        2.0,
+        Rc::new(Lambertian::new(perlin_texture)),
+    )));
+
+    let constant_texture = Rc::new(ConstantTexture::new(Vec3::new(4.0, 4.0, 4.0)));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 7.0, 0.0),
+        2.0,
+        Rc::new(DiffuseLight::new(constant_texture.clone())),
+    )));
+    scene.push(Rc::new(XYRect::new(
+        3.0,
+        5.0,
+        1.0,
+        3.0,
+        -2.0,
+        Rc::new(DiffuseLight::new(constant_texture.clone())),
+    )));
+    scene
+}
+
 fn main() {
-    let (nx, ny, ns) = (500, 300, 100);
+    let (nx, ny, ns) = (500, 300, 500);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
 
-    let lookfrom = Vec3::new(13.0, 13.0, 13.0);
-    let lookat = Vec3::new(0.0, 2.0, 0.0);
+    let lookfrom = Vec3::new(13.0, 2.0, 3.0);
+    let lookat = Vec3::new(0.0, 0.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.0;
 
@@ -243,7 +274,7 @@ fn main() {
         1.0,
     );
 
-    let world = BvhNode::new(&mut earth_scene(), 0.0, 1.0);
+    let world = BvhNode::new(&mut simple_light(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
