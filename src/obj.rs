@@ -102,3 +102,25 @@ impl XZRect {
         }
     }
 }
+
+pub struct YZRect {
+    pub y0: f32,
+    pub y1: f32,
+    pub z0: f32,
+    pub z1: f32,
+    pub k: f32,
+    pub material: Rc<dyn Material>,
+}
+
+impl YZRect {
+    pub fn new(y0: f32, y1: f32, z0: f32, z1: f32, k: f32, material: Rc<dyn Material>) -> Self {
+        Self {
+            y0: y0,
+            y1: y1,
+            z0: z0,
+            z1: z1,
+            k: k,
+            material: material,
+        }
+    }
+}

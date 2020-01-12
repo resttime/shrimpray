@@ -255,3 +255,28 @@ impl Hittable for XZRect {
         ))
     }
 }
+
+impl Hittable for YZRect {
+    fn hit(&self, r: Ray, t0: f32, t1: f32) -> Option<HitRecord> {
+        let t = (self.k - r.origin().x()) / r.direction().x();
+        if t < t0 || t > t1 {
+            return None;
+        }
+        let y = r.origin().y() + t * r.direction().y();
+        let z = r.origin().z() + t * r.direction().z();
+        if y < self.y0 || y > self.y1 || z < self.z0 || z > self.z1 {
+            return None;
+        }
+        let u = (y - self.y0) / (self.y1 - self.y0);
+        let v = (z - self.z0) / (self.z1 - self.z0);
+        let p = r.point_at_parameter(t);
+        let normal = Vec3::new(0.0, 0.0, 1.0);
+        Some(HitRecord::new(t, p, normal, u, v, self.material.clone()))
+    }
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
+        Some(AABB::new(
+            Vec3::new(self.y0, self.z0, self.k - 0.0001),
+            Vec3::new(self.y1, self.z1, self.k + 0.0001),
+        ))
+    }
+}
