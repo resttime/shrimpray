@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::bvh::{surrounding_bbox, BvhNode, AABB};
 use crate::material::Material;
-use crate::obj::{MovingSphere, Sphere, XYRect};
+use crate::obj::*;
 use crate::vec3::{dot, Ray, Vec3};
 
 pub struct HitRecord {
