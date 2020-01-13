@@ -136,3 +136,69 @@ impl FlipNormals {
     }
 }
 
+pub struct BoxShape {
+    pub pmin: Vec3,
+    pub pmax: Vec3,
+    pub faces: Vec<Rc<dyn Hittable>>,
+}
+
+impl BoxShape {
+    pub fn new(p0: Vec3, p1: Vec3, mat: Rc<dyn Material>) -> Self {
+        let mut faces: Vec<Rc<dyn Hittable>> = Vec::new();
+        faces.push(Rc::new(XYRect::new(
+            p0.x(),
+            p1.x(),
+            p0.y(),
+            p1.y(),
+            p1.z(),
+            mat.clone(),
+        )));
+        faces.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+            p0.x(),
+            p1.x(),
+            p0.y(),
+            p1.y(),
+            p0.z(),
+            mat.clone(),
+        )))));
+
+        faces.push(Rc::new(XZRect::new(
+            p0.x(),
+            p1.x(),
+            p0.z(),
+            p1.z(),
+            p1.y(),
+            mat.clone(),
+        )));
+        faces.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+            p0.x(),
+            p1.x(),
+            p0.z(),
+            p1.z(),
+            p0.y(),
+            mat.clone(),
+        )))));
+
+        faces.push(Rc::new(YZRect::new(
+            p0.y(),
+            p1.y(),
+            p0.z(),
+            p1.z(),
+            p1.x(),
+            mat.clone(),
+        )));
+        faces.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+            p0.y(),
+            p1.y(),
+            p0.z(),
+            p1.z(),
+            p0.x(),
+            mat.clone(),
+        )))));
+        Self {
+            pmin: p0,
+            pmax: p1,
+            faces: faces,
+        }
+    }
+}

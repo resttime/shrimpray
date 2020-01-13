@@ -293,3 +293,12 @@ impl Hittable for FlipNormals {
         self.obj_ref.bounding_box(t0, t1)
     }
 }
+
+impl Hittable for BoxShape {
+    fn hit(&self, r: Ray, t0: f32, t1: f32) -> Option<HitRecord> {
+        self.faces.hit(r, t0, t1)
+    }
+    fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
+        Some(AABB::new(self.pmin, self.pmax))
+    }
+}
