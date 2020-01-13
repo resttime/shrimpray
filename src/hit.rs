@@ -245,13 +245,13 @@ impl Hittable for XZRect {
         let u = (x - self.x0) / (self.x1 - self.x0);
         let v = (z - self.z0) / (self.z1 - self.z0);
         let p = r.point_at_parameter(t);
-        let normal = Vec3::new(0.0, 0.0, 1.0);
+        let normal = Vec3::new(0.0, 1.0, 0.0);
         Some(HitRecord::new(t, p, normal, u, v, self.material.clone()))
     }
     fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(AABB::new(
-            Vec3::new(self.x0, self.z0, self.k - 0.0001),
-            Vec3::new(self.x1, self.z1, self.k + 0.0001),
+            Vec3::new(self.x0, self.k - 0.0001, self.z0),
+            Vec3::new(self.x1, self.k + 0.0001, self.z1),
         ))
     }
 }
@@ -270,13 +270,13 @@ impl Hittable for YZRect {
         let u = (y - self.y0) / (self.y1 - self.y0);
         let v = (z - self.z0) / (self.z1 - self.z0);
         let p = r.point_at_parameter(t);
-        let normal = Vec3::new(0.0, 0.0, 1.0);
+        let normal = Vec3::new(1.0, 0.0, 0.0);
         Some(HitRecord::new(t, p, normal, u, v, self.material.clone()))
     }
     fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(AABB::new(
-            Vec3::new(self.y0, self.z0, self.k - 0.0001),
-            Vec3::new(self.y1, self.z1, self.k + 0.0001),
+            Vec3::new(self.k - 0.0001, self.y0, self.z0),
+            Vec3::new(self.k + 0.0001, self.y1, self.z1),
         ))
     }
 }
