@@ -251,22 +251,42 @@ fn simple_light() -> Vec<Rc<dyn Hittable>> {
     scene
 }
 
+fn cornell_box() -> Vec<Rc<dyn Hittable>> {
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+
+    let red = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.65, 0.05, 0.05)))));
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)))));
+    let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.12, 0.45, 0.15)))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(15.0, 15.0, 15.0)))));
+
+    scene.push(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, green)));
+    scene.push(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
+
+    scene.push(Rc::new(XZRect::new(213.0, 343.0, 227.0, 332.0, 554.0, light)));
+
+    scene.push(Rc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, white.clone())));
+    scene.push(Rc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white)));
+
+    scene
+}
+
 fn main() {
     let (nx, ny, ns) = (500, 300, 500);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
 
-    let lookfrom = Vec3::new(13.0, 2.0, 3.0);
-    let lookat = Vec3::new(0.0, 0.0, 0.0);
+    let lookfrom = Vec3::new(278.0, 278.0, -800.0);
+    let lookat = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.0;
+    let vfov = 40.0;
 
     let cam = Camera::new(
         lookfrom,
         lookat,
         Vec3::new(0.0, 1.0, 0.0),
-        20.0,
+        vfov,
         nx as f32 / ny as f32,
         aperture,
         dist_to_focus,
@@ -274,7 +294,7 @@ fn main() {
         1.0,
     );
 
-    let world = BvhNode::new(&mut simple_light(), 0.0, 1.0);
+    let world = BvhNode::new(&mut cornell_box(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
