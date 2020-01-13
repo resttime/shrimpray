@@ -280,3 +280,26 @@ impl Hittable for YZRect {
         ))
     }
 }
+
+struct FlipNormals {
+    obj_ref: Rc<dyn Hittable>,
+}
+
+impl FlipNormals {
+    fn new(obj_ref: Rc<dyn Hittable>) -> Self {
+        Self { obj_ref: obj_ref }
+    }
+}
+
+impl Hittable for FlipNormals {
+    fn hit(&self, r: Ray, t0: f32, t1: f32) -> Option<HitRecord> {
+        if let Some(mut hit) = self.obj_ref.hit(r, t0, t1) {
+            hit.normal = -1.0 * hit.normal;
+            return Some(hit);
+        }
+        None
+    }
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        self.obj_ref.bounding_box(t0, t1)
+    }
+}
