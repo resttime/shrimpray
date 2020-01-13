@@ -9,7 +9,7 @@ mod camera;
 use camera::Camera;
 
 mod obj;
-use obj::{MovingSphere, Sphere, XYRect};
+use obj::*;
 
 mod hit;
 use hit::Hittable;
@@ -18,10 +18,10 @@ mod bvh;
 use bvh::BvhNode;
 
 mod material;
-use material::{Dielectric, DiffuseLight, Lambertian, Metal};
+use material::*;
 
 mod texture;
-use texture::{CheckerTexture, ConstantTexture, ImageTexture, NoiseTexture};
+use texture::*;
 
 mod util;
 use util::*;
