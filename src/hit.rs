@@ -281,12 +281,12 @@ impl Hittable for YZRect {
     }
 }
 
-struct FlipNormals {
+pub struct FlipNormals {
     obj_ref: Rc<dyn Hittable>,
 }
 
 impl FlipNormals {
-    fn new(obj_ref: Rc<dyn Hittable>) -> Self {
+    pub fn new(obj_ref: Rc<dyn Hittable>) -> Self {
         Self { obj_ref: obj_ref }
     }
 }
