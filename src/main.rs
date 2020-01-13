@@ -254,23 +254,67 @@ fn simple_light() -> Vec<Rc<dyn Hittable>> {
 fn cornell_box() -> Vec<Rc<dyn Hittable>> {
     let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
 
-    let red = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.65, 0.05, 0.05)))));
-    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.73, 0.73, 0.73)))));
-    let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.12, 0.45, 0.15)))));
-    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(15.0, 15.0, 15.0)))));
+    let red = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.65, 0.05, 0.05,
+    )))));
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.12, 0.45, 0.15,
+    )))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(
+        15.0, 15.0, 15.0,
+    )))));
 
-    scene.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, green)))));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+        0.0, 555.0, 0.0, 555.0, 555.0, green,
+    )))));
     scene.push(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
-    scene.push(Rc::new(XZRect::new(213.0, 343.0, 227.0, 332.0, 554.0, light)));
-    scene.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())))));
-    scene.push(Rc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, white.clone())));
-    scene.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white)))));
+    scene.push(Rc::new(XZRect::new(
+        213.0, 343.0, 227.0, 332.0, 554.0, light,
+    )));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+    scene.push(Rc::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        0.0,
+        white.clone(),
+    )));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+
+    scene.push(Rc::new(BoxShape::new(
+        Vec3::new(130.0, 0.0, 65.0),
+        Vec3::new(295.0, 165.0, 230.0),
+        white.clone(),
+    )));
+    scene.push(Rc::new(BoxShape::new(
+        Vec3::new(265.0, 0.0, 295.0),
+        Vec3::new(430.0, 330.0, 460.0),
+        white.clone(),
+    )));
 
     scene
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 300, 500);
+    let (nx, ny, ns) = (500, 300, 100);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
