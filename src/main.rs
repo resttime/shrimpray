@@ -12,7 +12,7 @@ mod obj;
 use obj::*;
 
 mod hit;
-use hit::Hittable;
+use hit::*;
 
 mod bvh;
 use bvh::BvhNode;
