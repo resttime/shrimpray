@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use crate::hit::*;
 use crate::material::Material;
 use crate::vec3::Vec3;
 
