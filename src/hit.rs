@@ -281,16 +281,6 @@ impl Hittable for YZRect {
     }
 }
 
-pub struct FlipNormals {
-    obj_ref: Rc<dyn Hittable>,
-}
-
-impl FlipNormals {
-    pub fn new(obj_ref: Rc<dyn Hittable>) -> Self {
-        Self { obj_ref: obj_ref }
-    }
-}
-
 impl Hittable for FlipNormals {
     fn hit(&self, r: Ray, t0: f32, t1: f32) -> Option<HitRecord> {
         if let Some(mut hit) = self.obj_ref.hit(r, t0, t1) {
