@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
-use crate::bvh::{surrounding_bbox, BvhNode, AABB};
+use crate::bvh::*;
 use crate::material::Material;
 use crate::obj::*;
+use crate::transf::*;
 use crate::vec3::{dot, Ray, Vec3};
 
 pub struct HitRecord {
@@ -300,5 +301,26 @@ impl Hittable for BoxShape {
     }
     fn bounding_box(&self, _t0: f32, _t1: f32) -> Option<AABB> {
         Some(AABB::new(self.pmin, self.pmax))
+    }
+}
+
+impl Hittable for Translate {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let moved_ray = Ray::new(r.origin() - self.offset, r.direction(), r.time());
+
+        if let Some(mut hit) = self.obj_ref.hit(moved_ray, t_min, t_max) {
+            hit.p += self.offset;
+            return Some(hit);
+        }
+        None
+    }
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        if let Some(bbox) = self.obj_ref.bounding_box(t0, t1) {
+            return Some(AABB::new(
+                bbox.min() + self.offset,
+                bbox.max() + self.offset,
+            ));
+        }
+        None
     }
 }

@@ -29,6 +29,9 @@ use util::*;
 mod perlin;
 use perlin::Perlin;
 
+mod transf;
+use transf::*;
+
 fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);

@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use crate::hit::*;
+use crate::transf::*;
 use crate::material::Material;
 use crate::vec3::Vec3;
 
@@ -123,16 +124,6 @@ impl YZRect {
             k: k,
             material: material,
         }
-    }
-}
-
-pub struct FlipNormals {
-    pub obj_ref: Rc<dyn Hittable>,
-}
-
-impl FlipNormals {
-    pub fn new(obj_ref: Rc<dyn Hittable>) -> Self {
-        Self { obj_ref: obj_ref }
     }
 }
 
