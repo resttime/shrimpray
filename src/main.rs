@@ -259,13 +259,12 @@ fn cornell_box() -> Vec<Rc<dyn Hittable>> {
     let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(0.12, 0.45, 0.15)))));
     let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(15.0, 15.0, 15.0)))));
 
-    scene.push(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, green)));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, green)))));
     scene.push(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
-
     scene.push(Rc::new(XZRect::new(213.0, 343.0, 227.0, 332.0, 554.0, light)));
-
+    scene.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white.clone())))));
     scene.push(Rc::new(XZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, white.clone())));
-    scene.push(Rc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white)));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(0.0, 555.0, 0.0, 555.0, 555.0, white)))));
 
     scene
 }
