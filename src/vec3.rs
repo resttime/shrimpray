@@ -19,6 +19,17 @@ impl Index<u32> for Vec3 {
     }
 }
 
+impl IndexMut<u32> for Vec3 {
+    fn index_mut(&mut self, index: u32) -> &mut Self::Output {
+        match index {
+            0 => &mut self.e0,
+            1 => &mut self.e1,
+            2 => &mut self.e2,
+            _ => panic!(),
+        }
+    }
+}
+
 impl Add for Vec3 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
