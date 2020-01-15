@@ -285,7 +285,7 @@ impl Hittable for YZRect {
 impl Hittable for FlipNormals {
     fn hit(&self, r: Ray, t0: f32, t1: f32) -> Option<HitRecord> {
         if let Some(mut hit) = self.obj_ref.hit(r, t0, t1) {
-            hit.normal = -1.0 * hit.normal;
+            hit.normal *= -1.0;
             return Some(hit);
         }
         None
