@@ -324,3 +324,62 @@ impl Hittable for Translate {
         None
     }
 }
+
+impl Hittable for RotateY {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let mut origin = r.origin();
+        let mut direction = r.direction();
+
+        origin[0] = self.cos_theta * r.origin()[0] - self.sin_theta * r.origin()[2];
+        origin[2] = self.sin_theta * r.origin()[0] + self.cos_theta * r.origin()[2];
+
+        direction[0] = self.cos_theta * r.direction()[0] - self.sin_theta * r.direction()[2];
+        direction[2] = self.sin_theta * r.direction()[0] + self.cos_theta * r.direction()[2];
+        let rotate_r = Ray::new(origin, direction, r.time());
+        if let Some(mut hit) = self.obj_ref.hit(rotate_r, t_min, t_max) {
+            let mut p = hit.p;
+            let mut normal = hit.normal;
+            p[0] = self.cos_theta * hit.p[0] + self.sin_theta * hit.p[2];
+            p[2] = -self.sin_theta * hit.p[0] + self.cos_theta * hit.p[2];
+            normal[0] = self.cos_theta * hit.normal[0] + self.sin_theta * hit.normal[2];
+            normal[2] = -self.sin_theta * hit.normal[0] + self.cos_theta * hit.normal[2];
+            hit.p = p;
+            hit.normal = normal;
+            return Some(hit);
+        }
+        None
+    }
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        if let Some(bbox) = self.obj_ref.bounding_box(t0, t1) {
+            let mut max = Vec3::new(
+                std::f32::NEG_INFINITY,
+                std::f32::NEG_INFINITY,
+                std::f32::NEG_INFINITY,
+            );
+            let mut min = Vec3::new(std::f32::INFINITY, std::f32::INFINITY, std::f32::INFINITY);
+            for i in 0..2 {
+                for j in 0..2 {
+                    for k in 0..2 {
+                        let x = i as f32 * bbox.max().x() + (1.0 - i as f32) * bbox.min().x();
+                        let y = j as f32 * bbox.max().y() + (1.0 - j as f32) * bbox.min().y();
+                        let z = k as f32 * bbox.max().z() + (1.0 - k as f32) * bbox.min().z();
+
+                        let new_x = self.cos_theta * x + self.sin_theta * z;
+                        let new_z = -self.sin_theta * x + self.cos_theta * z;
+                        let tester = Vec3::new(new_x, y, new_z);
+                        for c in 0..3 {
+                            if tester[c as u32] > max[c] {
+                                max[c] = tester[c];
+                            }
+                            if tester[c as u32] < max[c] {
+                                min[c] = tester[c];
+                            }
+                        }
+                    }
+                }
+            }
+            return Some(AABB::new(min, max));
+        }
+        None
+    }
+}
