@@ -275,9 +275,10 @@ pub fn cornell_box() -> Vec<Rc<dyn Hittable>> {
         Vec3::new(165.0, 330.0, 165.0),
         white.clone(),
     ));
-    scene.push(
+    scene.push(Rc::new(Translate::new(
         Rc::new(RotateY::new(small_box, -18.0)),
-    );
+        Vec3::new(130.0, 0.0, 65.0),
+    )));
     scene.push(Rc::new(Translate::new(
         Rc::new(RotateY::new(tall_box, 15.0)),
         Vec3::new(265.0, 0.0, 295.0),

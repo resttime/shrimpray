@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 mod vec3;
 use vec3::{Ray, Vec3};
 
@@ -26,7 +28,7 @@ mod transf;
 mod scene;
 use scene::*;
 
-fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
+fn color(r: Ray, world: &Vec<Rc<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);
         if depth < 50 {
@@ -43,7 +45,7 @@ fn color(r: Ray, world: &BvhNode, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (300, 300, 100);
+    let (nx, ny, ns) = (900, 900, 1000);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -66,7 +68,7 @@ fn main() {
         1.0,
     );
 
-    let world = BvhNode::new(&mut cornell_box(), 0.0, 1.0);
+    let world = cornell_box(); //BvhNode::new(&mut cornell_box(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
