@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
 use crate::hit::*;
+use crate::material::*;
 use crate::transf::*;
-use crate::material::Material;
+use crate::texture::*;
 use crate::vec3::Vec3;
 
 pub struct Sphere {
@@ -190,6 +191,22 @@ impl BoxShape {
             pmin: p0,
             pmax: p1,
             faces: faces,
+        }
+    }
+}
+
+pub struct ConstantMedium {
+    pub boundary: Rc<dyn Hittable>,
+    pub density: f32,
+    pub phase_function: Rc<dyn Material>,
+}
+
+impl ConstantMedium {
+    pub fn new(b: Rc<dyn Hittable>, d: f32, a: Rc<dyn Texture>) -> Self {
+        Self {
+            boundary: b,
+            density: d,
+            phase_function: Rc::new(Isotropic::new(a)),
         }
     }
 }
