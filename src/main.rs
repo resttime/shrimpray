@@ -68,7 +68,7 @@ fn main() {
         1.0,
     );
 
-    let world = cornell_box(); //BvhNode::new(&mut cornell_box(), 0.0, 1.0);
+    let world = cornell_smoke_scene(); //BvhNode::new(&mut cornell_box(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {

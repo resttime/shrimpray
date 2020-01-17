@@ -286,3 +286,68 @@ pub fn cornell_box() -> Vec<Rc<dyn Hittable>> {
 
     scene
 }
+
+pub fn cornell_smoke_scene() -> Vec<Rc<dyn Hittable>> {
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+    let red = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.65, 0.05, 0.05,
+    )))));
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    let green = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.12, 0.45, 0.15,
+    )))));
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(
+        7.0, 7.0, 7.0,
+    )))));
+
+    scene.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+        0.0, 555.0, 0.0, 555.0, 555.0, green,
+    )))));
+    scene.push(Rc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
+    scene.push(Rc::new(XZRect::new(
+        113.0, 443.0, 127.0, 432.0, 554.0, light,
+    )));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+    scene.push(Rc::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        0.0,
+        white.clone(),
+    )));
+    scene.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+    let tall_box = Rc::new(BoxShape::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(165.0, 330.0, 165.0),
+        white.clone(),
+    ));
+    let tall_box = Rc::new(RotateY::new(tall_box, 15.0));
+    let tall_box = Rc::new(Translate::new(tall_box, Vec3::new(265.0, 0.0, 295.0)));
+    let small_box = Rc::new(BoxShape::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(165.0, 165.0, 165.0),
+        white.clone(),
+    ));
+    let small_box = Rc::new(RotateY::new(small_box, -18.0));
+    let small_box = Rc::new(Translate::new(small_box, Vec3::new(130.0, 0.0, 65.0)));
+    scene.push(Rc::new(ConstantMedium::new(tall_box, 0.01, Rc::new(ConstantTexture::new(Vec3::new(0.0, 0.0, 0.0))))));
+    scene.push(Rc::new(ConstantMedium::new(small_box, 0.01, Rc::new(ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0))))));
+    scene
+}
