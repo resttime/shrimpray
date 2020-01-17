@@ -4,6 +4,7 @@ use crate::bvh::*;
 use crate::material::Material;
 use crate::obj::*;
 use crate::transf::*;
+use crate::util::*;
 use crate::vec3::{dot, Ray, Vec3};
 
 pub struct HitRecord {
@@ -381,5 +382,47 @@ impl Hittable for RotateY {
             return Some(AABB::new(min, max));
         }
         None
+    }
+}
+
+impl Hittable for ConstantMedium {
+    fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        if let Some(mut hit1) = self
+            .boundary
+            .hit(r, std::f32::NEG_INFINITY, std::f32::INFINITY)
+        {
+            if let Some(mut hit2) = self.boundary.hit(r, hit1.t + 0.0001, std::f32::INFINITY) {
+                if hit1.t < t_min {
+                    hit1.t = t_min;
+                }
+                if hit2.t > t_max {
+                    hit2.t = t_max;
+                }
+                if hit1.t >= hit2.t {
+                    return None;
+                }
+                if hit1.t < 0.0 {
+                    hit1.t = 0.0;
+                }
+                let dist_in_boundary = (hit2.t - hit1.t) * r.direction().mag();
+                let hit_dist = -(1.0 / self.density) * rand_float().ln();
+                if hit_dist < dist_in_boundary {
+                    let t = hit1.t + hit_dist / r.direction().mag();
+                    let p = r.point_at_parameter(t);
+                    return Some(HitRecord::new(
+                        t,
+                        p,
+                        Vec3::new(1.0, 0.0, 0.0),
+                        0.0,
+                        0.0,
+                        self.phase_function.clone(),
+                    ));
+                }
+            }
+        }
+        None
+    }
+    fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB> {
+        self.boundary.bounding_box(t0, t1)
     }
 }
