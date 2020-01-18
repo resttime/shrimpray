@@ -45,12 +45,12 @@ fn color(r: Ray, world: &Vec<Rc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (900, 900, 1000);
+    let (nx, ny, ns) = (500, 500, 10000);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
 
-    let lookfrom = Vec3::new(278.0, 278.0, -800.0);
+    let lookfrom = Vec3::new(478.0, 278.0, -600.0);
     let lookat = Vec3::new(278.0, 278.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.0;
@@ -68,7 +68,7 @@ fn main() {
         1.0,
     );
 
-    let world = cornell_smoke_scene(); //BvhNode::new(&mut cornell_box(), 0.0, 1.0);
+    let world = final_scene(); //BvhNode::new(&mut cornell_box(), 0.0, 1.0);
 
     for j in (0..ny).rev() {
         for i in 0..nx {

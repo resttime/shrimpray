@@ -2,6 +2,7 @@ use std::rc::Rc;
 
 use image::GenericImageView;
 
+use crate::bvh::*;
 use crate::hit::*;
 use crate::material::*;
 use crate::obj::*;
@@ -347,7 +348,151 @@ pub fn cornell_smoke_scene() -> Vec<Rc<dyn Hittable>> {
     ));
     let small_box = Rc::new(RotateY::new(small_box, -18.0));
     let small_box = Rc::new(Translate::new(small_box, Vec3::new(130.0, 0.0, 65.0)));
-    scene.push(Rc::new(ConstantMedium::new(tall_box, 0.01, Rc::new(ConstantTexture::new(Vec3::new(0.0, 0.0, 0.0))))));
-    scene.push(Rc::new(ConstantMedium::new(small_box, 0.01, Rc::new(ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0))))));
+    scene.push(Rc::new(ConstantMedium::new(
+        tall_box,
+        0.01,
+        Rc::new(ConstantTexture::new(Vec3::new(0.0, 0.0, 0.0))),
+    )));
+    scene.push(Rc::new(ConstantMedium::new(
+        small_box,
+        0.01,
+        Rc::new(ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0))),
+    )));
+    scene
+}
+
+pub fn final_scene() -> Vec<Rc<dyn Hittable>> {
+    // Create scene vector
+    let mut scene: Vec<Rc<dyn Hittable>> = Vec::new();
+
+    // Create and add a ground of boxes
+    let mut boxes1: Vec<Rc<dyn Hittable>> = Vec::new();
+    let ground = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.48, 0.83, 0.53,
+    )))));
+    let boxes_per_side = 20;
+    for i in 0..boxes_per_side {
+        for j in 0..boxes_per_side {
+            let w = 100.0;
+            let x0 = -1000.0 + i as f32 * w;
+            let z0 = -1000.0 + j as f32 * w;
+            let y0 = 0.0;
+            let x1 = x0 + w;
+            let y1 = rand_float() * 100.0 + 1.0;
+            let z1 = z0 + w;
+            boxes1.push(Rc::new(BoxShape::new(
+                Vec3::new(x0, y0, z0),
+                Vec3::new(x1, y1, z1),
+                ground.clone(),
+            )));
+        }
+    }
+    scene.push(Rc::new(BvhNode::new(&mut boxes1, 0.0, 1.0)));
+
+    // Create and add lighting to scene
+    let light = Rc::new(DiffuseLight::new(Rc::new(ConstantTexture::new(Vec3::new(
+        7.0, 7.0, 7.0,
+    )))));
+    scene.push(Rc::new(XZRect::new(
+        123.0, 423.0, 147.0, 412.0, 554.0, light,
+    )));
+
+    // Add moving sphere
+    let center = Vec3::new(400.0, 400.0, 200.0);
+    scene.push(Rc::new(MovingSphere::new(
+        center,
+        center + Vec3::new(30.0, 0.0, 0.0),
+        0.0,
+        1.0,
+        50.0,
+        Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+            0.7, 0.3, 0.1,
+        ))))),
+    )));
+
+    // Add dielectric and metal sphere
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(260.0, 150.0, 45.0),
+        50.0,
+        Rc::new(Dielectric::new(1.5)),
+    )));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(0.0, 150.0, 145.0),
+        50.0,
+        Rc::new(Metal::new(Vec3::new(0.8, 0.8, 0.9), 10.0)),
+    )));
+
+    // Add boundary
+    let mut boundary = Rc::new(Sphere::new(
+        Vec3::new(360.0, 150.0, 145.0),
+        70.0,
+        Rc::new(Dielectric::new(1.5)),
+    ));
+    scene.push(boundary.clone());
+
+    // Add medium in boundary
+    scene.push(Rc::new(ConstantMedium::new(
+        boundary.clone(),
+        0.2,
+        Rc::new(ConstantTexture::new(Vec3::new(0.2, 0.4, 0.9))),
+    )));
+
+    // Add new medium in different boundary
+    boundary = Rc::new(Sphere::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        5000.0,
+        Rc::new(Dielectric::new(1.5)),
+    ));
+    scene.push(Rc::new(ConstantMedium::new(
+        boundary.clone(),
+        0.0001,
+        Rc::new(ConstantTexture::new(Vec3::new(1.0, 1.0, 1.0))),
+    )));
+
+    // Add image textured sphere
+    let img = image::open("texture/earthmap.jpg").unwrap();
+    let (nx, ny) = img.dimensions();
+    let data = img.raw_pixels();
+    let image_texture = Rc::new(ImageTexture::new(data, nx as i32, ny as i32));
+    let image_mat = Rc::new(Lambertian::new(image_texture));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(400.0, 200.0, 400.0),
+        100.0,
+        image_mat,
+    )));
+
+    // Add perlin textured sphere
+    let perlin_texture = Rc::new(NoiseTexture::new(0.1, Perlin::new()));
+    scene.push(Rc::new(Sphere::new(
+        Vec3::new(220.0, 280.0, 300.0),
+        80.0,
+        Rc::new(Lambertian::new(perlin_texture.clone())),
+    )));
+
+    // Add rotated "box" of spheres
+    let mut box_of_spheres: Vec<Rc<dyn Hittable>> = Vec::new();
+    let white = Rc::new(Lambertian::new(Rc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    for _ in 0..1000 {
+        box_of_spheres.push(Rc::new(Sphere::new(
+            Vec3::new(
+                rand_float() * 165.0,
+                rand_float() * 165.0,
+                rand_float() * 165.0,
+            ),
+            10.0,
+            white.clone(),
+        )));
+    }
+    scene.push(Rc::new(Translate::new(
+        Rc::new(RotateY::new(
+            Rc::new(BvhNode::new(&mut box_of_spheres, 0.0, 1.0)),
+            15.0,
+        )),
+        Vec3::new(-100.0, 270.0, 395.0),
+    )));
+
+    // All done, return the scene!
     scene
 }
