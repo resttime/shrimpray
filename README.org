@@ -14,8 +14,8 @@ for fine color discrimination? ---Science, Vol. 343, 24 Jan 2014
 *shrimpray* is my first project in Rust. It is an implementation of a
 ray tracer in Rust while following [[https://raytracing.github.io/][Ray Tracing in One Weekend Series]]
 as a guide. The style of code attempts to be idiomatic while
-minimizing mutables.  Wrapper types such as ~Option<T>~, ~Rc<T>~, and
-~Box<T>~ are used. The mantis shrimp is a cool creature.
+minimizing mutables.  Thread safe primitives for parallel processing.
+The mantis shrimp is a cool creature.
 
 Additional renders can be found under the [[./render][render]] folder
 
