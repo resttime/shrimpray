@@ -1,5 +1,5 @@
 * shrimpray
-[[./render/38.jpg]]
+[[./render/39.jpg]]
 
 #+begin_quote
 One of the most complex eyes in the animal kingdom can be found in
