@@ -1,4 +1,6 @@
-use std::rc::Rc;
+use std::sync::Arc;
+
+use rayon::prelude::*;
 
 mod vec3;
 use vec3::{Ray, Vec3};
@@ -12,7 +14,6 @@ mod hit;
 use hit::*;
 
 mod bvh;
-use bvh::BvhNode;
 
 mod material;
 
@@ -28,7 +29,7 @@ mod transf;
 mod scene;
 use scene::*;
 
-fn color(r: Ray, world: &Vec<Rc<dyn Hittable>>, depth: u32) -> Vec3 {
+fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);
         if depth < 50 {

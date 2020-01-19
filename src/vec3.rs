@@ -120,6 +120,19 @@ impl DivAssign<f32> for Vec3 {
     }
 }
 
+impl std::iter::Sum<Vec3> for Vec3 {
+    fn sum<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = Vec3>
+    {
+        let mut res = Vec3::default();
+        for v in iter {
+            res += v;
+        }
+        res
+    }
+}
+
 impl Vec3 {
     pub fn mag(&self) -> f32 {
         dot(*self, *self).sqrt()

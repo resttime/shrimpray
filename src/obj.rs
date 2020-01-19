@@ -1,19 +1,19 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::hit::*;
 use crate::material::*;
-use crate::transf::*;
 use crate::texture::*;
+use crate::transf::*;
 use crate::vec3::Vec3;
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f32,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f32, material: Rc<dyn Material>) -> Sphere {
+    pub fn new(center: Vec3, radius: f32, material: Arc<dyn Material>) -> Sphere {
         Sphere {
             center: center,
             radius: radius,
@@ -35,7 +35,7 @@ pub struct MovingSphere {
     pub time0: f32,
     pub time1: f32,
     pub radius: f32,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl MovingSphere {
@@ -45,7 +45,7 @@ impl MovingSphere {
         t0: f32,
         t1: f32,
         radius: f32,
-        material: Rc<dyn Material>,
+        material: Arc<dyn Material>,
     ) -> Self {
         Self {
             center0: center0,
@@ -68,11 +68,11 @@ pub struct XYRect {
     pub y0: f32,
     pub y1: f32,
     pub k: f32,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl XYRect {
-    pub fn new(x0: f32, x1: f32, y0: f32, y1: f32, k: f32, material: Rc<dyn Material>) -> Self {
+    pub fn new(x0: f32, x1: f32, y0: f32, y1: f32, k: f32, material: Arc<dyn Material>) -> Self {
         Self {
             x0: x0,
             x1: x1,
@@ -90,11 +90,11 @@ pub struct XZRect {
     pub z0: f32,
     pub z1: f32,
     pub k: f32,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl XZRect {
-    pub fn new(x0: f32, x1: f32, z0: f32, z1: f32, k: f32, material: Rc<dyn Material>) -> Self {
+    pub fn new(x0: f32, x1: f32, z0: f32, z1: f32, k: f32, material: Arc<dyn Material>) -> Self {
         Self {
             x0: x0,
             x1: x1,
@@ -112,11 +112,11 @@ pub struct YZRect {
     pub z0: f32,
     pub z1: f32,
     pub k: f32,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl YZRect {
-    pub fn new(y0: f32, y1: f32, z0: f32, z1: f32, k: f32, material: Rc<dyn Material>) -> Self {
+    pub fn new(y0: f32, y1: f32, z0: f32, z1: f32, k: f32, material: Arc<dyn Material>) -> Self {
         Self {
             y0: y0,
             y1: y1,
@@ -131,13 +131,13 @@ impl YZRect {
 pub struct BoxShape {
     pub pmin: Vec3,
     pub pmax: Vec3,
-    pub faces: Vec<Rc<dyn Hittable>>,
+    pub faces: Vec<Arc<dyn Hittable>>,
 }
 
 impl BoxShape {
-    pub fn new(p0: Vec3, p1: Vec3, mat: Rc<dyn Material>) -> Self {
-        let mut faces: Vec<Rc<dyn Hittable>> = Vec::new();
-        faces.push(Rc::new(XYRect::new(
+    pub fn new(p0: Vec3, p1: Vec3, mat: Arc<dyn Material>) -> Self {
+        let mut faces: Vec<Arc<dyn Hittable>> = Vec::new();
+        faces.push(Arc::new(XYRect::new(
             p0.x(),
             p1.x(),
             p0.y(),
@@ -145,7 +145,7 @@ impl BoxShape {
             p1.z(),
             mat.clone(),
         )));
-        faces.push(Rc::new(FlipNormals::new(Rc::new(XYRect::new(
+        faces.push(Arc::new(FlipNormals::new(Arc::new(XYRect::new(
             p0.x(),
             p1.x(),
             p0.y(),
@@ -154,7 +154,7 @@ impl BoxShape {
             mat.clone(),
         )))));
 
-        faces.push(Rc::new(XZRect::new(
+        faces.push(Arc::new(XZRect::new(
             p0.x(),
             p1.x(),
             p0.z(),
@@ -162,7 +162,7 @@ impl BoxShape {
             p1.y(),
             mat.clone(),
         )));
-        faces.push(Rc::new(FlipNormals::new(Rc::new(XZRect::new(
+        faces.push(Arc::new(FlipNormals::new(Arc::new(XZRect::new(
             p0.x(),
             p1.x(),
             p0.z(),
@@ -171,7 +171,7 @@ impl BoxShape {
             mat.clone(),
         )))));
 
-        faces.push(Rc::new(YZRect::new(
+        faces.push(Arc::new(YZRect::new(
             p0.y(),
             p1.y(),
             p0.z(),
@@ -179,7 +179,7 @@ impl BoxShape {
             p1.x(),
             mat.clone(),
         )));
-        faces.push(Rc::new(FlipNormals::new(Rc::new(YZRect::new(
+        faces.push(Arc::new(FlipNormals::new(Arc::new(YZRect::new(
             p0.y(),
             p1.y(),
             p0.z(),
@@ -196,17 +196,17 @@ impl BoxShape {
 }
 
 pub struct ConstantMedium {
-    pub boundary: Rc<dyn Hittable>,
+    pub boundary: Arc<dyn Hittable>,
     pub density: f32,
-    pub phase_function: Rc<dyn Material>,
+    pub phase_function: Arc<dyn Material>,
 }
 
 impl ConstantMedium {
-    pub fn new(b: Rc<dyn Hittable>, d: f32, a: Rc<dyn Texture>) -> Self {
+    pub fn new(b: Arc<dyn Hittable>, d: f32, a: Arc<dyn Texture>) -> Self {
         Self {
             boundary: b,
             density: d,
-            phase_function: Rc::new(Isotropic::new(a)),
+            phase_function: Arc::new(Isotropic::new(a)),
         }
     }
 }

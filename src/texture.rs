@@ -1,7 +1,7 @@
 use crate::perlin::Perlin;
 use crate::vec3::Vec3;
 
-pub trait Texture {
+pub trait Texture : Sync + Send {
     fn value(&self, u: f32, v: f32, p: &Vec3) -> Vec3;
 }
 

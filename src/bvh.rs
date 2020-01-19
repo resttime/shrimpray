@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::hit::Hittable;
 use crate::util::*;
@@ -55,13 +55,13 @@ pub fn surrounding_bbox(bbox0: AABB, bbox1: AABB) -> AABB {
 }
 
 pub struct BvhNode {
-    pub left: Option<Rc<dyn Hittable>>,
-    pub right: Option<Rc<dyn Hittable>>,
+    pub left: Option<Arc<dyn Hittable>>,
+    pub right: Option<Arc<dyn Hittable>>,
     pub bbox: AABB,
 }
 
 impl BvhNode {
-    pub fn new(list: &mut [Rc<dyn Hittable>], time0: f32, time1: f32) -> Self {
+    pub fn new(list: &mut [Arc<dyn Hittable>], time0: f32, time1: f32) -> Self {
         let axis = (3.0 * rand_float()) as u32;
         match axis {
             0 => {
@@ -76,7 +76,7 @@ impl BvhNode {
             _ => { panic!("There should've been an axis"); }
         }
 
-        let (left, right): (Rc<dyn Hittable>, Rc<dyn Hittable>);
+        let (left, right): (Arc<dyn Hittable>, Arc<dyn Hittable>);
         let len = list.len();
         match len {
             1 => {
@@ -88,8 +88,8 @@ impl BvhNode {
                 right = list[1].clone();
             }
             _ => {
-                left = Rc::new(BvhNode::new(&mut list[0..len / 2], time0, time1));
-                right = Rc::new(BvhNode::new(&mut list[len / 2..], time0, time1));
+                left = Arc::new(BvhNode::new(&mut list[0..len / 2], time0, time1));
+                right = Arc::new(BvhNode::new(&mut list[len / 2..], time0, time1));
             }
         }
 
@@ -104,20 +104,20 @@ impl BvhNode {
     }
 }
 
-pub fn box_compare_x(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>) -> std::cmp::Ordering {
+pub fn box_compare_x(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> std::cmp::Ordering {
     match (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0)) {
         (Some(lbox), Some(rbox)) => lbox.min().x().partial_cmp(&rbox.min().x()).unwrap(),
         (_, _) => panic!("Missing bounding box in a BvhNode contructor"),
     }
 }
 
-pub fn box_compare_y(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>) -> std::cmp::Ordering {
+pub fn box_compare_y(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> std::cmp::Ordering {
     match (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0)) {
         (Some(lbox), Some(rbox)) => lbox.min().y().partial_cmp(&rbox.min().y()).unwrap(),
         (_, _) => panic!("Missing bounding box in a BvhNode contructor"),
     }
 }
-pub fn box_compare_z(a: &Rc<dyn Hittable>, b: &Rc<dyn Hittable>) -> std::cmp::Ordering {
+pub fn box_compare_z(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> std::cmp::Ordering {
     match (a.bounding_box(0.0, 0.0), b.bounding_box(0.0, 0.0)) {
         (Some(lbox), Some(rbox)) => lbox.min().z().partial_cmp(&rbox.min().z()).unwrap(),
         (_, _) => panic!("Missing bounding box in a BvhNode contructor"),

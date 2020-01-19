@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::bvh::*;
 use crate::material::Material;
@@ -13,11 +13,11 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub u: f32,
     pub v: f32,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl HitRecord {
-    fn new(t: f32, p: Vec3, normal: Vec3, u: f32, v: f32, material: Rc<dyn Material>) -> HitRecord {
+    fn new(t: f32, p: Vec3, normal: Vec3, u: f32, v: f32, material: Arc<dyn Material>) -> HitRecord {
         HitRecord {
             t: t,
             p: p,
@@ -29,7 +29,7 @@ impl HitRecord {
     }
 }
 
-pub trait Hittable {
+pub trait Hittable : Sync + Send {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB>;
 }
@@ -56,7 +56,7 @@ impl Hittable for Sphere {
                     normal,
                     u,
                     v,
-                    Rc::clone(&self.material),
+                    Arc::clone(&self.material),
                 ));
             }
 
@@ -72,7 +72,7 @@ impl Hittable for Sphere {
                     normal,
                     u,
                     v,
-                    Rc::clone(&self.material),
+                    Arc::clone(&self.material),
                 ));
             }
         }
@@ -87,7 +87,7 @@ impl Hittable for Sphere {
     }
 }
 
-impl Hittable for Vec<Rc<dyn Hittable>> {
+impl Hittable for Vec<Arc<dyn Hittable>> {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut closest_t: f32 = t_max;
         let mut closest_hit: Option<HitRecord> = None;
@@ -145,7 +145,7 @@ impl Hittable for MovingSphere {
                     normal,
                     u,
                     v,
-                    Rc::clone(&self.material),
+                    Arc::clone(&self.material),
                 ));
             }
 
@@ -161,7 +161,7 @@ impl Hittable for MovingSphere {
                     normal,
                     u,
                     v,
-                    Rc::clone(&self.material),
+                    Arc::clone(&self.material),
                 ));
             }
         }

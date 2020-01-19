@@ -1,11 +1,11 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::hit::HitRecord;
 use crate::texture::Texture;
 use crate::util::*;
 use crate::vec3::{dot, reflect, refract, Ray, Vec3};
 
-pub trait Material {
+pub trait Material : Sync + Send {
     // -> Option<SCATTERED: Ray, ATTENUATION: Vec3>
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<(Ray, Vec3)>;
     fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
@@ -15,11 +15,11 @@ pub trait Material {
 
 // Diffuse
 pub struct Lambertian {
-    albedo: Rc<dyn Texture>,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Lambertian {
-    pub fn new(a: Rc<dyn Texture>) -> Self {
+    pub fn new(a: Arc<dyn Texture>) -> Self {
         Self { albedo: a }
     }
 }
@@ -109,11 +109,11 @@ impl Material for Dielectric {
 }
 
 pub struct DiffuseLight {
-    emit: Rc<dyn Texture>,
+    emit: Arc<dyn Texture>,
 }
 
 impl DiffuseLight {
-    pub fn new(a: Rc<dyn Texture>) -> Self {
+    pub fn new(a: Arc<dyn Texture>) -> Self {
         Self { emit: a }
     }
 }
@@ -128,11 +128,11 @@ impl Material for DiffuseLight {
 }
 
 pub struct Isotropic {
-    albedo: Rc<dyn Texture>,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Isotropic {
-    pub fn new(a: Rc<dyn Texture>) -> Self {
+    pub fn new(a: Arc<dyn Texture>) -> Self {
         Self { albedo: a }
     }
 }
