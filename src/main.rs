@@ -73,13 +73,15 @@ fn main() {
 
     for j in (0..ny).rev() {
         for i in 0..nx {
-            let mut col = Vec3::default();
-            for _ in 0..ns {
-                let u: f32 = (i as f32 + rand_float()) / nx as f32;
-                let v: f32 = (j as f32 + rand_float()) / ny as f32;
-                let r = cam.get_ray(u, v);
-                col += color(r, &world, 0);
-            }
+            let mut col: Vec3 = (0..ns)
+                .into_par_iter()
+                .map(|_| {
+                    let u: f32 = (i as f32 + rand_float()) / nx as f32;
+                    let v: f32 = (j as f32 + rand_float()) / ny as f32;
+                    let r = cam.get_ray(u, v);
+                    color(r, &world, 0)
+                })
+                .sum();
             col /= ns as f32;
             col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
 
