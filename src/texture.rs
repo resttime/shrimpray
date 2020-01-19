@@ -59,9 +59,13 @@ impl NoiseTexture {
 
 impl Texture for NoiseTexture {
     fn value(&self, _u: f32, _v: f32, p: &Vec3) -> Vec3 {
+        // Vec3::new(1.0, 1.0, 1.0)
+        //     * 0.50
+        //     * (1.0 + (self.scale * p.x() + 10.0 * self.noise.turb(p, 7)).sin())
+        let scaled_p = Vec3::new(p.x(), p.y(), p.z()) * self.scale;
         Vec3::new(1.0, 1.0, 1.0)
-            * 0.5
-            * (1.0 + (self.scale * p.z() + 10.0 * self.noise.turb(p, 7)).sin())
+            * 0.50
+            * (1.0 + (self.scale * p.x() + 5.0 * self.noise.turb(&scaled_p, 7)).sin())
     }
 }
 
