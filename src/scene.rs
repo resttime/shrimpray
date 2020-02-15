@@ -3,6 +3,7 @@ use std::sync::Arc;
 use image::GenericImageView;
 
 use crate::bvh::*;
+use crate::camera::*;
 use crate::hit::*;
 use crate::material::*;
 use crate::obj::*;
@@ -230,9 +231,9 @@ pub fn cornell_box() -> Vec<Arc<dyn Hittable>> {
     let green = Arc::new(Lambertian::new(Arc::new(ConstantTexture::new(Vec3::new(
         0.12, 0.45, 0.15,
     )))));
-    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(Vec3::new(
-        15.0, 15.0, 15.0,
-    )))));
+    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
+        Vec3::new(15.0, 15.0, 15.0),
+    ))));
 
     scene.push(Arc::new(FlipNormals::new(Arc::new(YZRect::new(
         0.0, 555.0, 0.0, 555.0, 555.0, green,
@@ -299,9 +300,9 @@ pub fn cornell_smoke_scene() -> Vec<Arc<dyn Hittable>> {
     let green = Arc::new(Lambertian::new(Arc::new(ConstantTexture::new(Vec3::new(
         0.12, 0.45, 0.15,
     )))));
-    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(Vec3::new(
-        7.0, 7.0, 7.0,
-    )))));
+    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
+        Vec3::new(7.0, 7.0, 7.0),
+    ))));
 
     scene.push(Arc::new(FlipNormals::new(Arc::new(YZRect::new(
         0.0, 555.0, 0.0, 555.0, 555.0, green,
@@ -390,9 +391,9 @@ pub fn final_scene() -> Vec<Arc<dyn Hittable>> {
     scene.push(Arc::new(BvhNode::new(&mut boxes1, 0.0, 1.0)));
 
     // Create and add lighting to scene
-    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(Vec3::new(
-        7.0, 7.0, 7.0,
-    )))));
+    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
+        Vec3::new(7.0, 7.0, 7.0),
+    ))));
     scene.push(Arc::new(XZRect::new(
         123.0, 423.0, 147.0, 412.0, 554.0, light,
     )));
@@ -495,4 +496,95 @@ pub fn final_scene() -> Vec<Arc<dyn Hittable>> {
 
     // All done, return the scene!
     scene
+}
+
+pub fn cornell_mc(aspect: f32) -> (Camera, Vec<Arc<dyn Hittable>>) {
+    let mut scene: Vec<Arc<dyn Hittable>> = Vec::new();
+    let red = Arc::new(Lambertian::new(Arc::new(ConstantTexture::new(Vec3::new(
+        0.65, 0.05, 0.05,
+    )))));
+    let white = Arc::new(Lambertian::new(Arc::new(ConstantTexture::new(Vec3::new(
+        0.73, 0.73, 0.73,
+    )))));
+    let green = Arc::new(Lambertian::new(Arc::new(ConstantTexture::new(Vec3::new(
+        0.12, 0.45, 0.15,
+    )))));
+    let light = Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
+        Vec3::new(15.0, 15.0, 15.0),
+    ))));
+
+    scene.push(Arc::new(FlipNormals::new(Arc::new(YZRect::new(
+        0.0, 555.0, 0.0, 555.0, 555.0, green,
+    )))));
+    scene.push(Arc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
+    scene.push(Arc::new(XZRect::new(
+        213.0, 343.0, 227.0, 332.0, 554.0, light,
+    )));
+    scene.push(Arc::new(FlipNormals::new(Arc::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+    scene.push(Arc::new(XZRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        0.0,
+        white.clone(),
+    )));
+    scene.push(Arc::new(FlipNormals::new(Arc::new(XYRect::new(
+        0.0,
+        555.0,
+        0.0,
+        555.0,
+        555.0,
+        white.clone(),
+    )))));
+
+    let tall_box = Arc::new(BoxShape::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(165.0, 330.0, 165.0),
+        white.clone(),
+    ));
+    scene.push(Arc::new(Translate::new(
+        Arc::new(RotateY::new(tall_box, 15.0)),
+        Vec3::new(265.0, 0.0, 295.0),
+    )));
+
+    let small_box = Arc::new(BoxShape::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(165.0, 165.0, 165.0),
+        white.clone(),
+    ));
+    scene.push(Arc::new(Translate::new(
+        Arc::new(RotateY::new(small_box, -18.0)),
+        Vec3::new(130.0, 0.0, 65.0),
+    )));
+
+    let lookfrom = Vec3::new(278.0, 278.0, -800.0);
+    let lookat = Vec3::new(278.0, 278.0, 0.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = 10.0;
+    let aperture = 0.0;
+    let vfov = 40.0;
+    let t0 = 0.0;
+    let t1 = 1.0;
+
+    let cam = Camera::new(
+        lookfrom,
+        lookat,
+        vup,
+        vfov,
+        aspect,
+        aperture,
+        dist_to_focus,
+        t0,
+        t1,
+    );
+
+    (cam, scene)
 }
