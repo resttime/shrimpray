@@ -33,8 +33,12 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);
         if depth < 50 {
-            if let Some((scattered, attenuation)) = hit.material.scatter(r, &hit) {
-                return emitted + attenuation * color(scattered, world, depth + 1);
+            if let Some(s_rec) = hit.material.scatter(r, &hit) {
+                return emitted
+                    + s_rec.albedo
+                        * hit.material.scattering_pdf(&r, &hit, &s_rec.scattering)
+                        * color(s_rec.scattering, world, depth + 1)
+                        / s_rec.pdf;
             } else {
                 return emitted;
             }
@@ -46,30 +50,12 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 10000);
+    let (nx, ny, ns) = (300, 300, 500);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
 
-    let lookfrom = Vec3::new(478.0, 278.0, -600.0);
-    let lookat = Vec3::new(278.0, 278.0, 0.0);
-    let dist_to_focus = 10.0;
-    let aperture = 0.0;
-    let vfov = 40.0;
-
-    let cam = Camera::new(
-        lookfrom,
-        lookat,
-        Vec3::new(0.0, 1.0, 0.0),
-        vfov,
-        nx as f32 / ny as f32,
-        aperture,
-        dist_to_focus,
-        0.0,
-        1.0,
-    );
-
-    let world = final_scene(); //BvhNode::new(&mut cornell_box(), 0.0, 1.0);
+    let (cam, world) = cornell_mc(ny as f32 / nx as f32);
 
     for j in (0..ny).rev() {
         for i in 0..nx {
@@ -96,21 +82,21 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::util::*;
+    use crate::vec3::*;
 
     #[inline]
-    fn pdf(x: f32) -> f32 {
-        return 0.5;
+    fn pdf(p: Vec3) -> f32 {
+        return 1.0 / (4.0 * std::f32::consts::PI);
     }
 
     #[test]
     fn mc() {
-        let mut inside_circle = 0;
-        let mut inside_circle_stratified = 0;
         let n = 1000000;
         let mut sum = 0.0;
         for i in 0..n {
-            let mut x = 2.0 * rand_float();
-            sum += x*x / pdf(x);
+            let d = random_unit_vector();
+            let cos_sqr = d.z() * d.z();
+            sum += cos_sqr / pdf(d);
         }
         println!("I = {}", sum / n as f32);
     }
