@@ -96,26 +96,22 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::util::*;
+
+    #[inline]
+    fn pdf(x: f32) -> f32 {
+        return 0.5;
+    }
+
     #[test]
     fn mc() {
         let mut inside_circle = 0;
         let mut inside_circle_stratified = 0;
-        let sqrt_n = 100;
-        for i in 0..sqrt_n {
-            for j in 0..sqrt_n {
-                let mut x = 2.0 * rand_float() - 1.0;
-                let mut y = 2.0 * rand_float() - 1.0;
-                if x*x + y*y < 1.0 {
-                    inside_circle+=1;
-                }
-                x = 2.0 * ((i as f32 + rand_float()) / sqrt_n as f32) - 1.0;
-                y = 2.0 * ((j as f32 + rand_float()) / sqrt_n as f32) - 1.0;
-                if x*x + y*y < 1.0 {
-                    inside_circle_stratified+=1;
-                }
-            }
+        let n = 1000000;
+        let mut sum = 0.0;
+        for i in 0..n {
+            let mut x = 2.0 * rand_float();
+            sum += x*x / pdf(x);
         }
-        println!("Regular Estimate of pi: {}", 4.0 * inside_circle as f32 / (sqrt_n*sqrt_n) as f32);
-        println!("Stratified Estimate of pi: {}", 4.0 * inside_circle_stratified as f32 / (sqrt_n*sqrt_n) as f32);
+        println!("I = {}", sum / n as f32);
     }
 }
