@@ -82,22 +82,20 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use crate::util::*;
-    use crate::vec3::*;
-
-    #[inline]
-    fn pdf(p: Vec3) -> f32 {
-        return 1.0 / (4.0 * std::f32::consts::PI);
-    }
 
     #[test]
     fn mc() {
         let n = 1000000;
         let mut sum = 0.0;
         for i in 0..n {
-            let d = random_unit_vector();
-            let cos_sqr = d.z() * d.z();
-            sum += cos_sqr / pdf(d);
+            let r1 = rand_float();
+            let r2 = rand_float();
+            let x = (2.0*std::f32::consts::PI*r1).cos() * 2.0 *(r2*(1.0-r2)).sqrt();
+            let y = (2.0*std::f32::consts::PI*r1).sin() * 2.0 *(r2*(1.0-r2)).sqrt();
+            let z = 1.0 - r2;
+            sum += z*z*z / (1.0 / (2.0 * std::f32::consts::PI));
         }
-        println!("I = {}", sum / n as f32);
+        println!("Pi/2 = {}", std::f32::consts::PI / 2.0 as f32);
+        println!("Estimate = {}", sum / n as f32);
     }
 }
