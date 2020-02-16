@@ -32,6 +32,8 @@ impl HitRecord {
 pub trait Hittable : Sync + Send {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB>;
+    fn pdf_value(&self, o: &Vec3, v: &Vec3) -> f32 { 0.0 }
+    fn random(&self, o: &Vec3) -> Vec3 { Vec3::new(1.0, 0.0, 0.0) }
 }
 
 impl Hittable for Sphere {
