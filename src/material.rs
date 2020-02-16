@@ -23,10 +23,10 @@ impl ScatterRecord {
 
 pub trait Material: Sync + Send {
     // -> Option<SCATTERED: Ray, ATTENUATION: Vec3>
-    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<ScatterRecord> {
+    fn scatter(&self, _ray_in: Ray, _hit: &HitRecord) -> Option<ScatterRecord> {
         None
     }
-    fn scattering_pdf(&self, ray_in: &Ray, hit: &HitRecord, scattered: &Ray) -> f32 {
+    fn scattering_pdf(&self, _ray_in: &Ray, _hit: &HitRecord, _scattered: &Ray) -> f32 {
         1.0
     }
     fn emitted(&self, _r_in: &Ray, _hit: &HitRecord, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
