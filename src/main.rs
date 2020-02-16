@@ -58,7 +58,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
             let pdf_val = p.value(&scattered.direction());
 
             return emitted
-                + s_rec.albedo
+                + s_rec.attenuation
                     * hit.material.scattering_pdf(&r, &hit, &scattered)
                     * color(scattered, world, depth - 1)
                     / pdf_val;

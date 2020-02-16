@@ -4,18 +4,21 @@ use crate::hit::HitRecord;
 use crate::texture::Texture;
 use crate::util::*;
 use crate::vec3::*;
+use crate::pdf::*;
 
 pub struct ScatterRecord {
-    pub scattering: Ray,
-    pub albedo: Vec3,
-    pub pdf: f32,
+    pub specular_ray: Ray,
+    pub is_specular: bool,
+    pub attenuation: Vec3,
+    pub pdf: Option<Box<dyn Pdf>>,
 }
 
 impl ScatterRecord {
-    pub fn new(scattering: Ray, albedo: Vec3, pdf: f32) -> Self {
+    pub fn new(specular_ray: Ray, is_specular: bool, attenuation: Vec3, pdf: Option<Box<dyn Pdf>>) -> Self {
         ScatterRecord {
-            scattering: scattering,
-            albedo: albedo,
+            specular_ray: specular_ray,
+            is_specular: is_specular,
+            attenuation: attenuation,
             pdf: pdf,
         }
     }
@@ -27,7 +30,7 @@ pub trait Material: Sync + Send {
         None
     }
     fn scattering_pdf(&self, _ray_in: &Ray, _hit: &HitRecord, _scattered: &Ray) -> f32 {
-        1.0
+        0.0
     }
     fn emitted(&self, _r_in: &Ray, _hit: &HitRecord, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0)
@@ -46,16 +49,11 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<ScatterRecord> {
-        let mut uvw: Onb = Onb::new();
-        uvw.build_from_w(&hit.normal);
-        let direction = uvw.local_vector(&random_cosine_direction());
-
-        let scattered = Ray::new(hit.p, direction.unit(), ray_in.time());
+    fn scatter(&self, _ray_in: Ray, hit: &HitRecord) -> Option<ScatterRecord> {
         let alb = self.albedo.value(hit.u, hit.v, &hit.p);
-        let pdf = dot(uvw.w(), scattered.direction()) / std::f32::consts::PI;
+        let pdf = Box::new(CosinePdf::new(&hit.normal));
 
-        Some(ScatterRecord::new(scattered, alb, pdf))
+        Some(ScatterRecord::new(Ray::default(), false, alb, Some(pdf)))
     }
     fn scattering_pdf(&self, _: &Ray, hit: &HitRecord, scattered: &Ray) -> f32 {
         let cosine = dot(hit.normal, scattered.direction().unit());
@@ -95,7 +93,7 @@ impl Material for Metal {
         let attenuation = self.albedo;
 
         if dot(scattered.direction(), hit.normal) > 0.0 {
-            return Some(ScatterRecord::new(scattered, attenuation, 1.0));
+            return Some(ScatterRecord::new(scattered, false, attenuation, None));
         }
         None
     }
@@ -134,11 +132,11 @@ impl Material for Dielectric {
             let refract_prob = 1.0 - schlick(cosine, self.ref_idx);
             if rand_float() < refract_prob {
                 let scattering = Ray::new(hit.p, refracted, ray_in.time());
-                return Some(ScatterRecord::new(scattering, attenuation, 1.0));
+                return Some(ScatterRecord::new(scattering, false, attenuation, None));
             }
         }
         let scattering = Ray::new(hit.p, reflected, ray_in.time());
-        Some(ScatterRecord::new(scattering, attenuation, 1.0))
+        Some(ScatterRecord::new(scattering, false, attenuation, None))
     }
 }
 
@@ -178,6 +176,6 @@ impl Material for Isotropic {
     fn scatter(&self, _ray_in: Ray, hit: &HitRecord) -> Option<ScatterRecord> {
         let scattered = Ray::new(hit.p, random_in_unit_sphere(), hit.t);
         let attenuation = self.albedo.value(hit.u, hit.v, &hit.p);
-        Some(ScatterRecord::new(scattered, attenuation, 1.0))
+        Some(ScatterRecord::new(scattered, false, attenuation, None))
     }
 }
