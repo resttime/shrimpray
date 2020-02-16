@@ -545,10 +545,13 @@ pub fn cornell_mc(aspect: f32) -> (Camera, Vec<Arc<dyn Hittable>>) {
         white.clone(),
     )))));
 
+
+    let aluminum = Arc::new(Metal::new(Vec3::new(0.8, 0.85, 0.88), 0.0));
+
     let tall_box = Arc::new(BoxShape::new(
         Vec3::new(0.0, 0.0, 0.0),
         Vec3::new(165.0, 330.0, 165.0),
-        white.clone(),
+        aluminum,
     ));
     scene.push(Arc::new(Translate::new(
         Arc::new(RotateY::new(tall_box, 15.0)),

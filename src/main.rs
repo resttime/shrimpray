@@ -46,17 +46,22 @@ fn color(
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(&r, &hit, hit.u, hit.v, &hit.p);
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
-            let p0 = HittablePdf::new(light_shape.clone(), hit.p);
-            let p1 = CosinePdf::new(&hit.normal);
-            let p = MixturePdf::new(Box::new(p0), Box::new(p1));
-            let scattered = Ray::new(hit.p, p.generate(), r.time());
-            let pdf_val = p.value(&scattered.direction());
+            if s_rec.is_specular {
+                return s_rec.attenuation
+                    * color(s_rec.specular_ray, world, light_shape, depth - 1);
+            } else {
+                let plight = HittablePdf::new(light_shape.clone(), hit.p);
+                let p = MixturePdf::new(Box::new(plight), s_rec.pdf.unwrap());
 
-            return emitted
-                + s_rec.attenuation
-                    * hit.material.scattering_pdf(&r, &hit, &scattered)
-                    * color(scattered, world, light_shape, depth - 1)
-                    / pdf_val;
+                let scattered = Ray::new(hit.p, p.generate(), r.time());
+                let pdf_val = p.value(&scattered.direction());
+
+                return emitted
+                    + s_rec.attenuation
+                        * hit.material.scattering_pdf(&r, &hit, &scattered)
+                        * color(scattered, world, light_shape, depth - 1)
+                        / pdf_val;
+            }
         } else {
             return emitted;
         }
@@ -65,7 +70,7 @@ fn color(
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 1000);
+    let (nx, ny, ns) = (500, 500, 10);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");

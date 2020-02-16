@@ -92,10 +92,7 @@ impl Material for Metal {
         );
         let attenuation = self.albedo;
 
-        if dot(scattered.direction(), hit.normal) > 0.0 {
-            return Some(ScatterRecord::new(scattered, false, attenuation, None));
-        }
-        None
+        Some(ScatterRecord::new(scattered, true, attenuation, None))
     }
 }
 
