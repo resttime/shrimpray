@@ -6,9 +6,9 @@ mod vec3;
 use vec3::*;
 
 mod camera;
-use camera::Camera;
 
 mod obj;
+use obj::*;
 
 mod hit;
 use hit::*;
@@ -16,8 +16,10 @@ use hit::*;
 mod bvh;
 
 mod material;
+use material::*;
 
 mod texture;
+use texture::*;
 
 mod util;
 use util::*;
@@ -39,7 +41,17 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(&r, &hit, hit.u, hit.v, &hit.p);
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
-            let p = CosinePdf::new(&hit.normal);
+            let light_shape = Arc::new(XZRect::new(
+                213.0,
+                343.0,
+                227.0,
+                332.0,
+                554.0,
+                Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
+                    Vec3::new(1.0, 1.0, 1.0),
+                )))),
+            ));
+            let p = HittablePdf::new(light_shape, hit.p);
             let scattered = Ray::new(hit.p, p.generate(), r.time());
             let pdf_val = p.value(&scattered.direction());
 
@@ -56,7 +68,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 200);
+    let (nx, ny, ns) = (500, 500, 10);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
