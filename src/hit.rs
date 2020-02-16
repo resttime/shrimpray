@@ -258,6 +258,21 @@ impl Hittable for XZRect {
             Vec3::new(self.x1, self.k + 0.0001, self.z1),
         ))
     }
+    fn pdf_value(&self, o: &Vec3, v: &Vec3) -> f32 {
+        if let Some(hit) = self.hit(Ray::new(*o, *v, 0.0), 0.001, std::f32::MAX) {
+            let area = (self.x1 - self.x0) * (self.z1 - self.z0);
+            let dist_sqrd = hit.t * hit.t * v.mag().powi(2);
+            let cosine = (dot(*v, hit.normal) / v.mag()).abs();
+            return dist_sqrd / (cosine * area);
+        }
+        0.0
+    }
+    fn random(&self, o: &Vec3) -> Vec3 {
+        let random_point = Vec3::new(self.x0 + rand_float() * (self.x1-self.x0),
+                                     self.k,
+                                     self.z0 + rand_float()*(self.z1-self.z0));
+        random_point - *o
+    }
 }
 
 impl Hittable for YZRect {
