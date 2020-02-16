@@ -34,24 +34,19 @@ mod transf;
 mod scene;
 use scene::*;
 
-fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
+fn color(
+    r: Ray,
+    world: &Vec<Arc<dyn Hittable>>,
+    light_shape: &Arc<dyn Hittable>,
+    depth: u32,
+) -> Vec3 {
     if depth <= 0 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(&r, &hit, hit.u, hit.v, &hit.p);
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
-            let light_shape = Arc::new(XZRect::new(
-                213.0,
-                343.0,
-                227.0,
-                332.0,
-                554.0,
-                Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
-                    Vec3::new(1.0, 1.0, 1.0),
-                )))),
-            ));
-            let p0 = HittablePdf::new(light_shape, hit.p);
+            let p0 = HittablePdf::new(light_shape.clone(), hit.p);
             let p1 = CosinePdf::new(&hit.normal);
             let p = MixturePdf::new(Box::new(p0), Box::new(p1));
             let scattered = Ray::new(hit.p, p.generate(), r.time());
@@ -60,7 +55,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
             return emitted
                 + s_rec.attenuation
                     * hit.material.scattering_pdf(&r, &hit, &scattered)
-                    * color(scattered, world, depth - 1)
+                    * color(scattered, world, light_shape, depth - 1)
                     / pdf_val;
         } else {
             return emitted;
@@ -77,6 +72,17 @@ fn main() {
 
     let (cam, world) = cornell_mc(ny as f32 / nx as f32);
 
+    let light_shape: Arc<dyn Hittable> = Arc::new(XZRect::new(
+        213.0,
+        343.0,
+        227.0,
+        332.0,
+        554.0,
+        Arc::new(DiffuseLight::new(Arc::new(ConstantTexture::new(
+            Vec3::new(1.0, 1.0, 1.0),
+        )))),
+    ));
+
     for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col: Vec3 = (0..ns)
@@ -85,7 +91,7 @@ fn main() {
                     let u: f32 = (i as f32 + rand_float()) / nx as f32;
                     let v: f32 = (j as f32 + rand_float()) / ny as f32;
                     let r = cam.get_ray(u, v);
-                    color(r, &world, 50)
+                    color(r, &world, &light_shape, 50)
                 })
                 .sum();
             col /= ns as f32;
