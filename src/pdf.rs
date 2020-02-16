@@ -10,6 +10,14 @@ pub struct CosinePdf {
     uvw: Onb,
 }
 
+impl CosinePdf {
+    pub fn new(w: &Vec3) -> Self {
+        let mut uvw = Onb::new();
+        uvw.build_from_w(w);
+        CosinePdf { uvw: uvw }
+    }
+}
+
 impl Pdf for CosinePdf {
     fn value(&self, direction: &Vec3) -> f32 {
         let cosine = dot(direction.unit(), self.uvw.w());
