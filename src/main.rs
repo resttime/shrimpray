@@ -51,7 +51,9 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
                     Vec3::new(1.0, 1.0, 1.0),
                 )))),
             ));
-            let p = HittablePdf::new(light_shape, hit.p);
+            let p0 = HittablePdf::new(light_shape, hit.p);
+            let p1 = CosinePdf::new(&hit.normal);
+            let p = MixturePdf::new(Box::new(p0), Box::new(p1));
             let scattered = Ray::new(hit.p, p.generate(), r.time());
             let pdf_val = p.value(&scattered.direction());
 
