@@ -70,7 +70,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 10);
+    let (nx, ny, ns) = (500, 500, 1000);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
