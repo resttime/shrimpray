@@ -517,9 +517,9 @@ pub fn cornell_mc(aspect: f32) -> (Camera, Vec<Arc<dyn Hittable>>) {
         0.0, 555.0, 0.0, 555.0, 555.0, green,
     )))));
     scene.push(Arc::new(YZRect::new(0.0, 555.0, 0.0, 555.0, 0.0, red)));
-    scene.push(Arc::new(XZRect::new(
+    scene.push(Arc::new(FlipNormals::new(Arc::new(XZRect::new(
         213.0, 343.0, 227.0, 332.0, 554.0, light,
-    )));
+    )))));
     scene.push(Arc::new(FlipNormals::new(Arc::new(XZRect::new(
         0.0,
         555.0,

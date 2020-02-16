@@ -29,7 +29,7 @@ pub trait Material: Sync + Send {
     fn scattering_pdf(&self, ray_in: &Ray, hit: &HitRecord, scattered: &Ray) -> f32 {
         1.0
     }
-    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
+    fn emitted(&self, _r_in: &Ray, _hit: &HitRecord, _u: f32, _v: f32, _p: &Vec3) -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0)
     }
 }
@@ -156,8 +156,11 @@ impl Material for DiffuseLight {
     fn scatter(&self, _ray_in: Ray, _hit: &HitRecord) -> Option<ScatterRecord> {
         None
     }
-    fn emitted(&self, u: f32, v: f32, p: &Vec3) -> Vec3 {
-        self.emit.value(u, v, p)
+    fn emitted(&self, r_in: &Ray, hit: &HitRecord, u: f32, v: f32, p: &Vec3) -> Vec3 {
+        if dot(hit.normal, r_in.direction()) < 0.0 {
+            return self.emit.value(u, v, p);
+        }
+        Vec3::new(0.0, 0.0, 0.0)
     }
 }
 

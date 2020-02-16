@@ -3,7 +3,7 @@ use std::sync::Arc;
 use rayon::prelude::*;
 
 mod vec3;
-use vec3::{Ray, Vec3};
+use vec3::*;
 
 mod camera;
 use camera::Camera;
@@ -34,13 +34,35 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
-        let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);
+        let emitted = hit.material.emitted(&r, &hit, hit.u, hit.v, &hit.p);
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
+            let on_light = Vec3::new(
+                rand_float_range(213.0, 343.0),
+                554.0,
+                rand_float_range(227.0, 332.0),
+            );
+            let mut to_light = on_light - hit.p;
+            let dist_sqrd = to_light.mag().powi(2);
+            to_light = to_light.unit();
+
+            if dot(to_light, hit.normal) < 0.0 {
+                return emitted;
+            }
+
+            let light_area = (343.0 - 213.0) * (332.0 - 227.0);
+            let light_cosine = to_light.y().abs();
+            if light_cosine < 0.000001 {
+                return emitted;
+            }
+
+            let pdf = dist_sqrd / (light_cosine * light_area);
+            let scattered = Ray::new(hit.p, to_light, r.time());
+
             return emitted
                 + s_rec.albedo
-                * hit.material.scattering_pdf(&r, &hit, &s_rec.scattering)
-                * color(s_rec.scattering, world, depth - 1)
-                / s_rec.pdf;
+                    * hit.material.scattering_pdf(&r, &hit, &scattered)
+                    * color(scattered, world, depth - 1)
+                    / pdf;
         } else {
             return emitted;
         }
@@ -49,7 +71,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 500);
+    let (nx, ny, ns) = (500, 500, 10);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -89,10 +111,10 @@ mod tests {
         for i in 0..n {
             let r1 = rand_float();
             let r2 = rand_float();
-            let x = (2.0*std::f32::consts::PI*r1).cos() * 2.0 *(r2*(1.0-r2)).sqrt();
-            let y = (2.0*std::f32::consts::PI*r1).sin() * 2.0 *(r2*(1.0-r2)).sqrt();
+            let x = (2.0 * std::f32::consts::PI * r1).cos() * 2.0 * (r2 * (1.0 - r2)).sqrt();
+            let y = (2.0 * std::f32::consts::PI * r1).sin() * 2.0 * (r2 * (1.0 - r2)).sqrt();
             let z = 1.0 - r2;
-            sum += z*z*z / (1.0 / (2.0 * std::f32::consts::PI));
+            sum += z * z * z / (1.0 / (2.0 * std::f32::consts::PI));
         }
         println!("Pi/2 = {}", std::f32::consts::PI / 2.0 as f32);
         println!("Estimate = {}", sum / n as f32);

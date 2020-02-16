@@ -8,6 +8,12 @@ pub fn rand_float() -> f32 {
 }
 
 #[inline]
+pub fn rand_float_range(min: f32, max: f32) -> f32 {
+    let mut rng = rand::thread_rng();
+    rng.gen_range(min, max)
+}
+
+#[inline]
 pub fn random_in_unit_sphere() -> Vec3 {
     loop {
         let p =
