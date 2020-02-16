@@ -24,6 +24,8 @@ use util::*;
 
 mod perlin;
 
+mod pdf;
+
 mod transf;
 
 mod scene;
