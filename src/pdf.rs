@@ -53,3 +53,26 @@ impl Pdf for HittablePdf {
         self.obj_ref.random(&self.o)
     }
 }
+
+pub struct MixturePdf {
+    p: Vec<Box<dyn Pdf>>,
+}
+
+impl MixturePdf {
+    pub fn new(p0: Box<dyn Pdf>, p1: Box<dyn Pdf>) -> Self {
+        let p = vec![p0, p1];
+        MixturePdf { p: p }
+    }
+}
+
+impl Pdf for MixturePdf {
+    fn value(&self, direction: &Vec3) -> f32 {
+        0.5 * self.p[0].value(direction) + 0.5 * self.p[1].value(direction)
+    }
+    fn generate(&self, ) -> Vec3 {
+        if rand_float() < 0.5 {
+            return self.p[0].generate();
+        }
+        self.p[1].generate()
+    }
+}
