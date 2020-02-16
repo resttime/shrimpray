@@ -25,6 +25,7 @@ use util::*;
 mod perlin;
 
 mod pdf;
+use pdf::*;
 
 mod transf;
 
@@ -38,33 +39,15 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(&r, &hit, hit.u, hit.v, &hit.p);
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
-            let on_light = Vec3::new(
-                rand_float_range(213.0, 343.0),
-                554.0,
-                rand_float_range(227.0, 332.0),
-            );
-            let mut to_light = on_light - hit.p;
-            let dist_sqrd = to_light.mag().powi(2);
-            to_light = to_light.unit();
-
-            if dot(to_light, hit.normal) < 0.0 {
-                return emitted;
-            }
-
-            let light_area = (343.0 - 213.0) * (332.0 - 227.0);
-            let light_cosine = to_light.y().abs();
-            if light_cosine < 0.000001 {
-                return emitted;
-            }
-
-            let pdf = dist_sqrd / (light_cosine * light_area);
-            let scattered = Ray::new(hit.p, to_light, r.time());
+            let p = CosinePdf::new(&hit.normal);
+            let scattered = Ray::new(hit.p, p.generate(), r.time());
+            let pdf_val = p.value(&scattered.direction());
 
             return emitted
                 + s_rec.albedo
                     * hit.material.scattering_pdf(&r, &hit, &scattered)
                     * color(scattered, world, depth - 1)
-                    / pdf;
+                    / pdf_val;
         } else {
             return emitted;
         }
@@ -73,7 +56,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 10);
+    let (nx, ny, ns) = (500, 500, 200);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
