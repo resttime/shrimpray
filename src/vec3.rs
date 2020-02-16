@@ -41,7 +41,7 @@ impl Add for Vec3 {
     }
 }
 
-impl AddAssign  for Vec3 {
+impl AddAssign for Vec3 {
     fn add_assign(&mut self, other: Self) {
         self.e0 += other.e0;
         self.e1 += other.e1;
@@ -123,7 +123,7 @@ impl DivAssign<f32> for Vec3 {
 impl std::iter::Sum<Vec3> for Vec3 {
     fn sum<I>(iter: I) -> Self
     where
-        I: Iterator<Item = Vec3>
+        I: Iterator<Item = Vec3>,
     {
         let mut res = Vec3::default();
         for v in iter {
@@ -168,9 +168,11 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
 }
 
 pub fn cross(v1: Vec3, v2: Vec3) -> Vec3 {
-    Vec3::new(v1.e1 * v2.e2 - v1.e2 * v2.e1,
-              v1.e2 * v2.e0 - v1.e0 * v2.e2,
-              v1.e0 * v2.e1 - v1.e1 * v2.e0)
+    Vec3::new(
+        v1.e1 * v2.e2 - v1.e2 * v2.e1,
+        v1.e2 * v2.e0 - v1.e0 * v2.e2,
+        v1.e0 * v2.e1 - v1.e1 * v2.e0,
+    )
 }
 
 pub fn refract(v: Vec3, n: Vec3, ni_over_nt: f32) -> Option<Vec3> {
@@ -207,6 +209,74 @@ impl Ray {
         self.a + t * self.b
     }
     pub fn new(a: Vec3, b: Vec3, t: f32) -> Ray {
-        Ray { a: a, b: b, time: t }
+        Ray {
+            a: a,
+            b: b,
+            time: t,
+        }
+    }
+}
+
+pub struct Onb {
+    pub axis: Vec<Vec3>,
+}
+
+impl Onb {
+    pub fn new() -> Self {
+        let uvw = vec![
+            Vec3::new(1.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            Vec3::new(0.0, 0.0, 1.0),
+        ];
+        Onb { axis: uvw }
+    }
+    pub fn u(&self) -> Vec3 {
+        self.axis[0]
+    }
+    pub fn v(&self) -> Vec3 {
+        self.axis[1]
+    }
+    pub fn w(&self) -> Vec3 {
+        self.axis[2]
+    }
+    pub fn local_vector(&self, a: &Vec3) -> Vec3 {
+        a.x() * self.u() + a.y() * self.v() + a.z() * self.w()
+    }
+    pub fn local_coordinates(&self, a: f32, b: f32, c: f32) -> Vec3 {
+        a * self.u() + b * self.v() + c * self.w()
+    }
+    pub fn build_from_w(&mut self, n: &Vec3) {
+        self.axis[2] = n.unit();
+        let a: Vec3;
+        if self.w().x().abs() > 0.9 {
+            a = Vec3::new(0.0, 1.0, 0.0);
+        } else {
+            a = Vec3::new(1.0, 0.0, 0.0);
+        }
+        self.axis[1] = cross(self.w(), a).unit();
+        self.axis[0] = cross(self.w(), self.v());
+    }
+}
+
+impl Index<u32> for Onb {
+    type Output = Vec3;
+    fn index(&self, i: u32) -> &Self::Output {
+        match i {
+            0 => &self.axis[0],
+            1 => &self.axis[1],
+            2 => &self.axis[2],
+            _ => panic!(),
+        }
+    }
+}
+
+impl IndexMut<u32> for Onb {
+    fn index_mut(&mut self, index: u32) -> &mut Self::Output {
+        match index {
+            0 => &mut self.axis[0],
+            1 => &mut self.axis[1],
+            2 => &mut self.axis[2],
+            _ => panic!(),
+        }
     }
 }
