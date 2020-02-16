@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::hit::HitRecord;
 use crate::texture::Texture;
 use crate::util::*;
-use crate::vec3::{dot, reflect, refract, Ray, Vec3};
+use crate::vec3::*;
 
 pub struct ScatterRecord {
     pub scattering: Ray,
@@ -47,17 +47,13 @@ impl Lambertian {
 
 impl Material for Lambertian {
     fn scatter(&self, ray_in: Ray, hit: &HitRecord) -> Option<ScatterRecord> {
-        let mut direction = Vec3::new(0.0, 0.0, 0.0);
-        loop {
-            direction = random_in_unit_sphere();
-            if dot(direction, hit.normal) >= 0.0 {
-                break;
-            }
-        }
+        let mut uvw: Onb = Onb::new();
+        uvw.build_from_w(&hit.normal);
+        let direction = uvw.local_vector(&random_cosine_direction());
 
         let scattered = Ray::new(hit.p, direction.unit(), ray_in.time());
         let alb = self.albedo.value(hit.u, hit.v, &hit.p);
-        let pdf = 0.5 / std::f32::consts::PI;
+        let pdf = dot(uvw.w(), scattered.direction()) / std::f32::consts::PI;
 
         Some(ScatterRecord::new(scattered, alb, pdf))
     }
