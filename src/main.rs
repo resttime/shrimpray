@@ -30,18 +30,17 @@ mod scene;
 use scene::*;
 
 fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
+    if depth <= 0 {
+        return Vec3::new(0.0, 0.0, 0.0);
+    }
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
         let emitted = hit.material.emitted(hit.u, hit.v, &hit.p);
-        if depth < 50 {
-            if let Some(s_rec) = hit.material.scatter(r, &hit) {
-                return emitted
-                    + s_rec.albedo
-                        * hit.material.scattering_pdf(&r, &hit, &s_rec.scattering)
-                        * color(s_rec.scattering, world, depth + 1)
-                        / s_rec.pdf;
-            } else {
-                return emitted;
-            }
+        if let Some(s_rec) = hit.material.scatter(r, &hit) {
+            return emitted
+                + s_rec.albedo
+                * hit.material.scattering_pdf(&r, &hit, &s_rec.scattering)
+                * color(s_rec.scattering, world, depth - 1)
+                / s_rec.pdf;
         } else {
             return emitted;
         }
@@ -50,7 +49,7 @@ fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, depth: u32) -> Vec3 {
 }
 
 fn main() {
-    let (nx, ny, ns) = (300, 300, 500);
+    let (nx, ny, ns) = (500, 500, 500);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -65,7 +64,7 @@ fn main() {
                     let u: f32 = (i as f32 + rand_float()) / nx as f32;
                     let v: f32 = (j as f32 + rand_float()) / ny as f32;
                     let r = cam.get_ray(u, v);
-                    color(r, &world, 0)
+                    color(r, &world, 50)
                 })
                 .sum();
             col /= ns as f32;
