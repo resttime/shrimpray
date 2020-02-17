@@ -87,6 +87,21 @@ impl Hittable for Sphere {
         );
         Some(bbox)
     }
+    fn pdf_value(&self, o: &Vec3, v: &Vec3) -> f32 {
+        if let Some(_) = self.hit(Ray::new(*o, *v, 0.0), 0.001, std::f32::MAX) {
+            let cos_theta_max = (1.0 - self.radius*self.radius/(self.center-*o).mag_sqrd()).sqrt();
+            let solid_angle = 2.0 * std::f32::consts::PI * (1.0 - cos_theta_max);
+            return 1.0 / solid_angle;
+        }
+        0.0
+    }
+    fn random(&self, o: &Vec3) -> Vec3 {
+        let direction = self.center - *o;
+        let dist_sqrd = direction.mag_sqrd();
+        let mut uvw = Onb::new();
+        uvw.build_from_w(&direction);
+        uvw.local_vector(&random_to_sphere(self.radius, dist_sqrd))
+    }
 }
 
 impl Hittable for Vec<Arc<dyn Hittable>> {
