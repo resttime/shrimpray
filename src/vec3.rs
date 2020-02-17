@@ -137,6 +137,9 @@ impl Vec3 {
     pub fn mag(&self) -> f32 {
         dot(*self, *self).sqrt()
     }
+    pub fn mag_sqrd(&self) -> f32 {
+        dot(*self, *self)
+    }
     pub fn unit(&self) -> Vec3 {
         *self / self.mag()
     }
