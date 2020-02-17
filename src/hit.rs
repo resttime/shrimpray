@@ -5,7 +5,7 @@ use crate::material::Material;
 use crate::obj::*;
 use crate::transf::*;
 use crate::util::*;
-use crate::vec3::{dot, Ray, Vec3};
+use crate::vec3::*;
 
 pub struct HitRecord {
     pub t: f32,
