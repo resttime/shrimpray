@@ -56,6 +56,19 @@ pub fn random_cosine_direction() -> Vec3 {
 }
 
 #[inline]
+pub fn random_to_sphere(radius: f32, dist_sqrd: f32) -> Vec3 {
+    let r1 = rand_float();
+    let r2 = rand_float();
+    let z = 1.0 + r2 * ((1.0 - radius*radius/dist_sqrd).sqrt() - 1.0);
+
+    let phi = 2.0 * std::f32::consts::PI * r1;
+    let x = phi.cos() * (1.0 - z*z).sqrt();
+    let y = phi.sin() * (1.0 - z*z).sqrt();
+
+    Vec3::new(x, y, z)
+}
+
+#[inline]
 pub fn schlick(cosine: f32, ref_idx: f32) -> f32 {
     let mut r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
     r0 = r0 * r0;
