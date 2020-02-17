@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use rand::seq::SliceRandom;
 
 use crate::bvh::*;
 use crate::material::Material;
@@ -137,6 +138,18 @@ impl Hittable for Vec<Arc<dyn Hittable>> {
             }
         }
         Some(bbox)
+    }
+    fn pdf_value(&self, o: &Vec3, v: &Vec3) -> f32 {
+        let weight = 1.0 / self.len() as f32;
+        let mut sum = 0.0;
+
+        for obj in self.iter() {
+            sum += weight * obj.pdf_value(o, v);
+        }
+        sum
+    }
+    fn random(&self, o: &Vec3) -> Vec3 {
+        self.choose(&mut rand::thread_rng()).unwrap().random(o)
     }
 }
 

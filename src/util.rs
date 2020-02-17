@@ -38,8 +38,8 @@ pub fn random_in_unit_disk() -> Vec3 {
 pub fn random_unit_vector() -> Vec3 {
     let a = rand_float() * 2.0 * std::f32::consts::PI;
     let z = rand_float() * 2.0 - 1.0;
-    let r = (1.0 - z*z).sqrt();
-    return Vec3::new(r*a.cos(), r*a.sin(), z);
+    let r = (1.0 - z * z).sqrt();
+    return Vec3::new(r * a.cos(), r * a.sin(), z);
 }
 
 #[inline]
@@ -59,11 +59,11 @@ pub fn random_cosine_direction() -> Vec3 {
 pub fn random_to_sphere(radius: f32, dist_sqrd: f32) -> Vec3 {
     let r1 = rand_float();
     let r2 = rand_float();
-    let z = 1.0 + r2 * ((1.0 - radius*radius/dist_sqrd).sqrt() - 1.0);
+    let z = 1.0 + r2 * ((1.0 - radius * radius / dist_sqrd).sqrt() - 1.0);
 
     let phi = 2.0 * std::f32::consts::PI * r1;
-    let x = phi.cos() * (1.0 - z*z).sqrt();
-    let y = phi.sin() * (1.0 - z*z).sqrt();
+    let x = phi.cos() * (1.0 - z * z).sqrt();
+    let y = phi.sin() * (1.0 - z * z).sqrt();
 
     Vec3::new(x, y, z)
 }
@@ -74,4 +74,19 @@ pub fn schlick(cosine: f32, ref_idx: f32) -> f32 {
     r0 = r0 * r0;
 
     r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+}
+
+#[inline]
+pub fn de_nan(c: &Vec3) -> Vec3 {
+    let mut temp: Vec3 = *c;
+    if temp[0] != temp[0] {
+        temp[0] = 0.0
+    }
+    if temp[1] != temp[1] {
+        temp[1] = 0.0
+    }
+    if temp[2] != temp[2] {
+        temp[2] = 0.0
+    }
+    return temp;
 }

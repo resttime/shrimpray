@@ -25,7 +25,6 @@ impl ScatterRecord {
 }
 
 pub trait Material: Sync + Send {
-    // -> Option<SCATTERED: Ray, ATTENUATION: Vec3>
     fn scatter(&self, _ray_in: Ray, _hit: &HitRecord) -> Option<ScatterRecord> {
         None
     }

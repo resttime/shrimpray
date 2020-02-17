@@ -37,7 +37,7 @@ use scene::*;
 fn color(
     r: Ray,
     world: &Vec<Arc<dyn Hittable>>,
-    light_shape: &Arc<dyn Hittable>,
+    lights: &Arc<dyn Hittable>,
     depth: u32,
 ) -> Vec3 {
     if depth <= 0 {
@@ -48,9 +48,9 @@ fn color(
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
             if s_rec.is_specular {
                 return s_rec.attenuation
-                    * color(s_rec.specular_ray, world, light_shape, depth - 1);
+                    * color(s_rec.specular_ray, world, lights, depth - 1);
             } else {
-                let plight = HittablePdf::new(light_shape.clone(), hit.p);
+                let plight = HittablePdf::new(lights.clone(), hit.p);
                 let p = MixturePdf::new(Box::new(plight), s_rec.pdf.unwrap());
 
                 let scattered = Ray::new(hit.p, p.generate(), r.time());
@@ -59,7 +59,7 @@ fn color(
                 return emitted
                     + s_rec.attenuation
                         * hit.material.scattering_pdf(&r, &hit, &scattered)
-                        * color(scattered, world, light_shape, depth - 1)
+                        * color(scattered, world, lights, depth - 1)
                         / pdf_val;
             }
         } else {
@@ -70,7 +70,7 @@ fn color(
 }
 
 fn main() {
-    let (nx, ny, ns) = (500, 500, 10);
+    let (nx, ny, ns) = (500, 500, 1000);
     println!("P3");
     println!("{} {}", nx, ny);
     println!("255");
@@ -88,6 +88,11 @@ fn main() {
         )))),
     ));
 
+    let glass = Arc::new(Dielectric::new(1.5));
+    let glass_sphere: Arc<dyn Hittable> = Arc::new(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass));
+
+    let lights: Arc<dyn Hittable> = Arc::new(vec![light_shape, glass_sphere]);
+
     for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col: Vec3 = (0..ns)
@@ -96,7 +101,7 @@ fn main() {
                     let u: f32 = (i as f32 + rand_float()) / nx as f32;
                     let v: f32 = (j as f32 + rand_float()) / ny as f32;
                     let r = cam.get_ray(u, v);
-                    color(r, &world, &light_shape, 50)
+                    de_nan(&color(r, &world, &lights, 50))
                 })
                 .sum();
             col /= ns as f32;
