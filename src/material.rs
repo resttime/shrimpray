@@ -129,11 +129,11 @@ impl Material for Dielectric {
             let refract_prob = 1.0 - schlick(cosine, self.ref_idx);
             if rand_float() < refract_prob {
                 let scattering = Ray::new(hit.p, refracted, ray_in.time());
-                return Some(ScatterRecord::new(scattering, false, attenuation, None));
+                return Some(ScatterRecord::new(scattering, true, attenuation, None));
             }
         }
         let scattering = Ray::new(hit.p, reflected, ray_in.time());
-        Some(ScatterRecord::new(scattering, false, attenuation, None))
+        Some(ScatterRecord::new(scattering, true, attenuation, None))
     }
 }
 
