@@ -558,15 +558,8 @@ pub fn cornell_mc(aspect: f32) -> (Camera, Vec<Arc<dyn Hittable>>) {
         Vec3::new(265.0, 0.0, 295.0),
     )));
 
-    let small_box = Arc::new(BoxShape::new(
-        Vec3::new(0.0, 0.0, 0.0),
-        Vec3::new(165.0, 165.0, 165.0),
-        white.clone(),
-    ));
-    scene.push(Arc::new(Translate::new(
-        Arc::new(RotateY::new(small_box, -18.0)),
-        Vec3::new(130.0, 0.0, 65.0),
-    )));
+    let glass = Arc::new(Dielectric::new(1.5));
+    scene.push(Arc::new(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass)));
 
     let lookfrom = Vec3::new(278.0, 278.0, -800.0);
     let lookat = Vec3::new(278.0, 278.0, 0.0);
