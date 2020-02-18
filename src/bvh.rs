@@ -73,7 +73,9 @@ impl BvhNode {
             2 => {
                 list.sort_by(box_compare_z);
             }
-            _ => { panic!("There should've been an axis"); }
+            _ => {
+                panic!("There should've been an axis");
+            }
         }
 
         let (left, right): (Arc<dyn Hittable>, Arc<dyn Hittable>);

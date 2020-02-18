@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
+use crate::hit::*;
 use crate::util::*;
 use crate::vec3::*;
-use crate::hit::*;
 
 pub trait Pdf {
     fn value(&self, direction: &Vec3) -> f32;
@@ -41,7 +41,10 @@ pub struct HittablePdf {
 
 impl HittablePdf {
     pub fn new(p: Arc<dyn Hittable>, origin: Vec3) -> Self {
-        HittablePdf { o: origin, obj_ref: p }
+        HittablePdf {
+            o: origin,
+            obj_ref: p,
+        }
     }
 }
 
@@ -69,7 +72,7 @@ impl Pdf for MixturePdf {
     fn value(&self, direction: &Vec3) -> f32 {
         0.5 * self.p[0].value(direction) + 0.5 * self.p[1].value(direction)
     }
-    fn generate(&self, ) -> Vec3 {
+    fn generate(&self) -> Vec3 {
         if rand_float() < 0.5 {
             return self.p[0].generate();
         }

@@ -34,12 +34,7 @@ mod transf;
 mod scene;
 use scene::*;
 
-fn color(
-    r: Ray,
-    world: &Vec<Arc<dyn Hittable>>,
-    lights: &Arc<dyn Hittable>,
-    depth: u32,
-) -> Vec3 {
+fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, lights: &Arc<dyn Hittable>, depth: u32) -> Vec3 {
     if depth <= 0 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
@@ -47,8 +42,7 @@ fn color(
         let emitted = hit.material.emitted(&r, &hit, hit.u, hit.v, &hit.p);
         if let Some(s_rec) = hit.material.scatter(r, &hit) {
             if s_rec.is_specular {
-                return s_rec.attenuation
-                    * color(s_rec.specular_ray, world, lights, depth - 1);
+                return s_rec.attenuation * color(s_rec.specular_ray, world, lights, depth - 1);
             } else {
                 let plight = HittablePdf::new(lights.clone(), hit.p);
                 let p = MixturePdf::new(Box::new(plight), s_rec.pdf.unwrap());
@@ -89,7 +83,8 @@ fn main() {
     ));
 
     let glass = Arc::new(Dielectric::new(1.5));
-    let glass_sphere: Arc<dyn Hittable> = Arc::new(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass));
+    let glass_sphere: Arc<dyn Hittable> =
+        Arc::new(Sphere::new(Vec3::new(190.0, 90.0, 190.0), 90.0, glass));
 
     let lights: Arc<dyn Hittable> = Arc::new(vec![light_shape, glass_sphere]);
 
