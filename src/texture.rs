@@ -1,7 +1,7 @@
 use crate::perlin::Perlin;
 use crate::vec3::Vec3;
 
-pub trait Texture : Sync + Send {
+pub trait Texture: Sync + Send {
     fn value(&self, u: f32, v: f32, p: &Vec3) -> Vec3;
 }
 
@@ -77,21 +77,33 @@ pub struct ImageTexture {
 
 impl ImageTexture {
     pub fn new(pixels: Vec<u8>, a: i32, b: i32) -> Self {
-        Self{ data: pixels, nx: a, ny: b }
+        Self {
+            data: pixels,
+            nx: a,
+            ny: b,
+        }
     }
 }
 
 impl Texture for ImageTexture {
     fn value(&self, u: f32, v: f32, _p: &Vec3) -> Vec3 {
         let mut i = (u * self.nx as f32) as i32;
-        let mut j = ((1.0-v) * self.ny as f32 - 0.001) as i32;
-        if i < 0 { i = 0; }
-        if j < 0 { j = 0; }
-        if i > (self.nx - 1) {  i = self.nx - 1; }
-        if j > (self.ny - 1) {  j = self.ny - 1; }
-        let r = self.data[3*i as usize + (3*self.nx*j) as usize] as f32 / 255.0;
-        let g = self.data[3*i as usize + (3*self.nx*j + 1) as usize] as f32 / 255.0;
-        let b = self.data[3*i as usize + (3*self.nx*j + 2) as usize] as f32 / 255.0;
+        let mut j = ((1.0 - v) * self.ny as f32 - 0.001) as i32;
+        if i < 0 {
+            i = 0;
+        }
+        if j < 0 {
+            j = 0;
+        }
+        if i > (self.nx - 1) {
+            i = self.nx - 1;
+        }
+        if j > (self.ny - 1) {
+            j = self.ny - 1;
+        }
+        let r = self.data[3 * i as usize + (3 * self.nx * j) as usize] as f32 / 255.0;
+        let g = self.data[3 * i as usize + (3 * self.nx * j + 1) as usize] as f32 / 255.0;
+        let b = self.data[3 * i as usize + (3 * self.nx * j + 2) as usize] as f32 / 255.0;
         Vec3::new(r, g, b)
     }
 }

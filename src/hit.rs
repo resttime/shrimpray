@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use rand::seq::SliceRandom;
+use std::sync::Arc;
 
 use crate::bvh::*;
 use crate::material::Material;
@@ -18,7 +18,14 @@ pub struct HitRecord {
 }
 
 impl HitRecord {
-    fn new(t: f32, p: Vec3, normal: Vec3, u: f32, v: f32, material: Arc<dyn Material>) -> HitRecord {
+    fn new(
+        t: f32,
+        p: Vec3,
+        normal: Vec3,
+        u: f32,
+        v: f32,
+        material: Arc<dyn Material>,
+    ) -> HitRecord {
         HitRecord {
             t: t,
             p: p,
@@ -30,11 +37,15 @@ impl HitRecord {
     }
 }
 
-pub trait Hittable : Sync + Send {
+pub trait Hittable: Sync + Send {
     fn hit(&self, r: Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
     fn bounding_box(&self, t0: f32, t1: f32) -> Option<AABB>;
-    fn pdf_value(&self, _o: &Vec3, _v: &Vec3) -> f32 { 0.0 }
-    fn random(&self, _o: &Vec3) -> Vec3 { Vec3::new(1.0, 0.0, 0.0) }
+    fn pdf_value(&self, _o: &Vec3, _v: &Vec3) -> f32 {
+        0.0
+    }
+    fn random(&self, _o: &Vec3) -> Vec3 {
+        Vec3::new(1.0, 0.0, 0.0)
+    }
 }
 
 impl Hittable for Sphere {
@@ -90,7 +101,8 @@ impl Hittable for Sphere {
     }
     fn pdf_value(&self, o: &Vec3, v: &Vec3) -> f32 {
         if let Some(_) = self.hit(Ray::new(*o, *v, 0.0), 0.001, std::f32::MAX) {
-            let cos_theta_max = (1.0 - self.radius*self.radius/(self.center-*o).mag_sqrd()).sqrt();
+            let cos_theta_max =
+                (1.0 - self.radius * self.radius / (self.center - *o).mag_sqrd()).sqrt();
             let solid_angle = 2.0 * std::f32::consts::PI * (1.0 - cos_theta_max);
             return 1.0 / solid_angle;
         }
@@ -296,9 +308,11 @@ impl Hittable for XZRect {
         0.0
     }
     fn random(&self, o: &Vec3) -> Vec3 {
-        let random_point = Vec3::new(self.x0 + rand_float() * (self.x1-self.x0),
-                                     self.k,
-                                     self.z0 + rand_float()*(self.z1-self.z0));
+        let random_point = Vec3::new(
+            self.x0 + rand_float() * (self.x1 - self.x0),
+            self.k,
+            self.z0 + rand_float() * (self.z1 - self.z0),
+        );
         random_point - *o
     }
 }

@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use crate::hit::HitRecord;
+use crate::pdf::*;
 use crate::texture::Texture;
 use crate::util::*;
 use crate::vec3::*;
-use crate::pdf::*;
 
 pub struct ScatterRecord {
     pub specular_ray: Ray,
@@ -14,7 +14,12 @@ pub struct ScatterRecord {
 }
 
 impl ScatterRecord {
-    pub fn new(specular_ray: Ray, is_specular: bool, attenuation: Vec3, pdf: Option<Box<dyn Pdf>>) -> Self {
+    pub fn new(
+        specular_ray: Ray,
+        is_specular: bool,
+        attenuation: Vec3,
+        pdf: Option<Box<dyn Pdf>>,
+    ) -> Self {
         ScatterRecord {
             specular_ray: specular_ray,
             is_specular: is_specular,
