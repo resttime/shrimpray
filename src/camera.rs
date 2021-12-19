@@ -44,16 +44,16 @@ impl Camera {
         let vertical = 2.0 * half_height * focus_dist * v;
 
         Self {
-            origin: origin,
-            ll_corner: ll_corner,
-            horizontal: horizontal,
-            vertical: vertical,
-            u: u,
-            v: v,
-            w: w,
-            lens_radius: lens_radius,
-            time0: time0,
-            time1: time1,
+            origin,
+            ll_corner,
+            horizontal,
+            vertical,
+            u,
+            v,
+            w,
+            lens_radius,
+            time0,
+            time1,
         }
     }
 
