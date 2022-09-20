@@ -35,7 +35,7 @@ mod scene;
 use scene::*;
 
 fn color(r: Ray, world: &Vec<Arc<dyn Hittable>>, lights: &Arc<dyn Hittable>, depth: u32) -> Vec3 {
-    if depth <= 0 {
+    if depth == 0 {
         return Vec3::new(0.0, 0.0, 0.0);
     }
     if let Some(hit) = world.hit(r, 0.001, std::f32::MAX) {
@@ -118,7 +118,7 @@ mod tests {
     fn mc() {
         let n = 1000000;
         let mut sum = 0.0;
-        for i in 0..n {
+        for _ in 0..n {
             let r1 = rand_float();
             let r2 = rand_float();
             let x = (2.0 * std::f32::consts::PI * r1).cos() * 2.0 * (r2 * (1.0 - r2)).sqrt();
