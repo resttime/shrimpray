@@ -102,9 +102,9 @@ fn main() {
             col /= ns as f32;
             col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
 
-            let ir: u32 = (255.99 * col[0]) as u32;
-            let ig: u32 = (255.99 * col[1]) as u32;
-            let ib: u32 = (255.99 * col[2]) as u32;
+            let ir: u32 = (256.0 * num::clamp(col[0], 0.0, 0.999)) as u32;
+            let ig: u32 = (256.0 * num::clamp(col[1], 0.0, 0.999)) as u32;
+            let ib: u32 = (256.0 * num::clamp(col[2], 0.0, 0.999)) as u32;
             println!("{} {} {}", ir, ig, ib)
         }
     }
